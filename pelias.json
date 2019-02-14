@@ -1,0 +1,36 @@
+{
+  "esclient": {
+    "hosts": [{
+      "host": "elasticsearch"
+    }],
+    "apiVersion":"5.6"
+  },
+  "schema": {
+    "indexName": "pelias_19a"
+  },
+  "api": {
+    "services": {
+      "placeholder": {
+        "url": "http://placeholder:4100"
+      },
+      "libpostal": {
+        "url": "http://libpostal:4400"
+      }
+    },
+    "host": "api",
+    "indexName": "pelias_19a"
+  },
+  "imports": {
+    "nycpad": {
+      "download": [
+        {
+          "sourceURL": "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized.zip"
+        }
+      ],
+      "datapath": "/data/nycpad",
+      "import": [{
+          "filename":"labs-geosearch-pad-normalized.csv"
+      }]
+    }
+  }
+}

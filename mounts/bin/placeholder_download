@@ -1,0 +1,5 @@
+#!/bin/bash
+
+mkdir -p /data/placeholder
+
+curl -s https://s3.amazonaws.com/pelias-data.nextzen.org/placeholder/store.sqlite3.gz | gunzip > /data/placeholder/store.sqlite3;

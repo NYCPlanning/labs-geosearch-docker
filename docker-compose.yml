@@ -1,0 +1,83 @@
+version: '3'
+networks:
+  default:
+    driver: bridge
+services:
+  api:
+    image: pelias/api
+    container_name: pelias_api
+    user: "${DOCKER_USER}"
+    restart: always
+    environment: [ "PORT=4000" ]
+    ports: [ "4000:4000" ]
+    volumes:
+      - "./pelias.json:/code/pelias.json"
+      # mount custom middleware/helper code to expose PAD meta fields in api response
+      - "./mounts/api/helper/geojsonify_place_details.js:/home/pelias/helper/geojsonify_place_details.js"
+      - "./mounts/api/middleware/renamePlacenames.js:/home/pelias/middleware/renamePlacenames.js"
+
+  # defines the ES schema used by pelias API
+  schema:
+    image: pelias/schema:master
+    container_name: pelias_schema
+    user: "${DOCKER_USER}"
+    volumes:
+      - "./pelias.json:/code/pelias.json"
+      # mount custom document schema to add PAD meta fields to native document schema in ES
+      - "./mounts/schema/document.js:/code/pelias/schema/mappings/document.js"
+
+  # Required by pelias api; see https://github.com/pelias/documentation/blob/master/services.md
+  libpostal:
+    image: pelias/libpostal-service
+    container_name: pelias_libpostal
+    user: "${DOCKER_USER}"
+    restart: always
+    ports: [ "4400:4400" ]
+
+  # required by pelias api; see https://github.com/pelias/documentation/blob/master/services.md
+  placeholder:
+    image: pelias/placeholder:master
+    container_name: pelias_placeholder
+    user: "${DOCKER_USER}"
+    restart: always
+    environment: [ "PORT=4100" ]
+    ports: [ "4100:4100" ]
+    volumes:
+      - "./pelias.json:/code/pelias.json"
+      - "${DATA_DIR}:/data"
+      - "./mounts/bin/placeholder_download:/code/pelias/placeholder/bin/download"
+
+  # custom NYC PAD importer
+  nycpad:
+    build:
+      context: "https://github.com/nycplanning/labs-geosearch-pad-importer.git"
+    container_name: pelias_nycpad
+    volumes:
+      - "./pelias.json:/code/pelias.json"
+      - "${DATA_DIR}:/data"
+
+  # NYC PAD normalizer
+  nycpad_normalizer:
+    build:
+      context: "http://github.com/nycplanning/labs-geosearch-pad-normalize.git"
+    container_name: pelias_nycpad_normalizer
+    volumes:
+      - "${DATA_DIR}:/data"
+
+  # The ES backend
+  elasticsearch:
+    image: pelias/elasticsearch:5.6.12
+    container_name: pelias_elasticsearch
+    user: "${DOCKER_USER}"
+    restart: always
+    ports: [ "9200:9200", "9300:9300" ]
+    volumes:
+      - "${DATA_DIR}/elasticsearch:/usr/share/elasticsearch/data"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add: [ "IPC_LOCK" ]
