@@ -9,7 +9,6 @@ Docker Compose project for NYC Geosearch Services,built on the open source [Peli
 These dockerfiles allow for quickly standing up all of the services that work together to run the pelias geocoder, and is used in both production and development. These include:
 
 - Modified Pelias API - node.js HTTP API that parses search strings and returns results from ES backend, using our custom Document schema
-- [Placeholder service](https://github.com/pelias/placeholder) - a supporting service for Pelias API that aids in dealing with administrative areas
 - [Libpostal service](https://github.com/pelias/libpostal-service) - a supporting service for Pelias API that parses addresses with ML-trained models
 - Elasticsearch - the backend for the geocoder, where all address data is stored
 
@@ -49,27 +48,30 @@ $ pelias
 
 Usage: pelias [command] [action] [options]
 
-  compose   pull                   update all docker images
-  compose   logs                   display container logs
-  compose   ps                     list containers
-  compose   top                    display the running processes of a container
-  compose   exec                   execute an arbitrary docker-compose command
-  compose   run                    execute a docker-compose run command
-  compose   up                     start one or more docker-compose service(s)
-  compose   kill                   kill one or more docker-compose service(s)
-  compose   down                   stop all docker-compose service(s)
-  download  placeholder            (re)download placeholder data
-  elastic   drop                   delete elasticsearch index & all data
-  elastic   create                 create elasticsearch index with pelias mapping
-  elastic   start                  start elasticsearch server
-  elastic   stop                   stop elasticsearch server
-  elastic   status                 HTTP status code of the elasticsearch service
-  elastic   wait                   wait for elasticsearch to start up
-  elastic   aliases                show all elasticsearch aliases
-  elastic   indices                show all elasticsearch indices
-  import    pad                    (re)import PAD data
+  compose    pull                   update all docker images
+  compose    logs                   display container logs
+  compose    ps                     list containers
+  compose    top                    display the running processes of a container
+  compose    exec                   execute an arbitrary docker-compose command
+  compose    run                    execute a docker-compose run command
+  compose    up                     start one or more docker-compose service(s)
+  compose    kill                   kill one or more docker-compose service(s)
+  compose    down                   stop all docker-compose service(s)
+  download   placeholder            (re)download placeholder data
+  elastic    drop                   delete elasticsearch index & all data
+  elastic    create                 create elasticsearch index with pelias mapping
+  elastic    alias                  Create or update specified alias to point to index defined in pelias.json
+  elastic    start                  start elasticsearch server
+  elastic    stop                   stop elasticsearch server
+  elastic    status                 HTTP status code of the elasticsearch service
+  elastic    wait                   wait for elasticsearch to start up
+  elastic    aliases                show all elasticsearch aliases
+  elastic    indices                show all elasticsearch indices
+  import     nycpad                 (re)import NYC PAD data
+  normalize  nycpad                 (re)download nycpad data, normalize, and save; version can optionally be specified
+
 ```
-This is essentially a subset of commands/actions provided by the original tool, with a few operations added to manage PAD data and placeholder data
+This is essentially a subset of commands/actions provided by the original tool, with a few operations added to manage PAD data
 
 ## Running Pelias Services
 1. __Run PAD Download and Normalization__
@@ -122,12 +124,7 @@ This is essentially a subset of commands/actions provided by the original tool, 
     ```
     Note: Importing the entire PAD dataset will take a fair amount of time and space. If you are bootstrapping/developing, it is recommended to download and import a smaller sample of the dataset #TODO ADD LINK TO importer repo
 
-4. __Download Placeholder Data__
-    ```sh
-    $ pelias download placeholder
-    ```
-
-5. __Bring UP API and Supporting Services__
+4. __Bring UP API and Supporting Services__
 
     The importer and schema containers are ephemeral, meaning that they will exit(0) immediately upon being run. This means you're free to bring up the whole docker compose project, and only the containers that should persist (pelias API, and placeholder and libpostal services) will persist. Alternatively you can specify which containers you'd like to bring up
     ```sh
@@ -139,7 +136,7 @@ This is essentially a subset of commands/actions provided by the original tool, 
     ```
     Note: The libpostal service requires significant memory to function, around 2G for just this one service. Be sure to bump up your docker memory allocation before trying to run all the services at once.
 
-7. __Confirm everything is working!__
+5. __Confirm everything is working!__
     ```sh
     $ docker-compose ps
             Name                      Command               State                       Ports
@@ -147,7 +144,6 @@ This is essentially a subset of commands/actions provided by the original tool, 
     pelias_api             ./bin/start                      Up      0.0.0.0:4000->4000/tcp
     pelias_elasticsearch   /bin/bash bin/es-docker          Up      0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp
     pelias_libpostal       ./bin/wof-libpostal-server ...   Up      0.0.0.0:4400->4400/tcp
-    pelias_placeholder     ./cmd/server.sh                  Up      0.0.0.0:4100->4100/tcp
 
     # confirm libpostal is running & working
     $ curl -s localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq
@@ -156,37 +152,6 @@ This is essentially a subset of commands/actions provided by the original tool, 
       "120 broadway ny new york",
       "120 broadway new york ny",
       "120 broadway new york new york"
-    ]
-
-    # confirm placeholder is running & working
-    $ curl -s localhost:4100/parser/search?text=new%20york%20ny%20USA | jq
-    [
-      {
-        "id": 85977539,
-        "name": "New York",
-        "abbr": "NYC",
-        "placetype": "locality",
-        "population": 8405837,
-        "lineage": [
-          {
-            "continent": {
-              "id": 102191575,
-              "name": "North America",
-              "languageDefaulted": true
-            },
-            "country": {
-              "id": 85633793,
-              "name": "United States",
-              "abbr": "USA",
-              "languageDefaulted": true
-            },
-            ...
-          }
-          ...
-        ]
-        ...
-      }
-      ...
     ]
 
     # confirm pelias API is running & working

@@ -24,7 +24,9 @@ services:
     volumes:
       - "./pelias.json:/code/pelias.json"
       # mount custom document schema to add PAD meta fields to native document schema in ES
-      - "./mounts/schema/document.js:/code/pelias/schema/mappings/document.js"
+      - "./mounts/schema/mappings/document.js:/code/pelias/schema/mappings/document.js"
+      - "./mounts/schema/bin/alias:/code/pelias/schema/bin/alias"
+      - "./mounts/schema/scripts/alias.js:/code/pelias/schema/scripts/alias.js"
 
   # Required by pelias api; see https://github.com/pelias/documentation/blob/master/services.md
   libpostal:
@@ -33,19 +35,6 @@ services:
     user: "${DOCKER_USER}"
     restart: always
     ports: [ "4400:4400" ]
-
-  # required by pelias api; see https://github.com/pelias/documentation/blob/master/services.md
-  placeholder:
-    image: pelias/placeholder:master
-    container_name: pelias_placeholder
-    user: "${DOCKER_USER}"
-    restart: always
-    environment: [ "PORT=4100" ]
-    ports: [ "4100:4100" ]
-    volumes:
-      - "./pelias.json:/code/pelias.json"
-      - "${DATA_DIR}:/data"
-      - "./mounts/bin/placeholder_download:/code/pelias/placeholder/bin/download"
 
   # custom NYC PAD importer
   nycpad:

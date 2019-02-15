@@ -2,19 +2,23 @@
 set -e;
 
 function elastic_schema_drop(){ compose_run 'schema' node scripts/drop_index "$@" || true; }
+register 'elastic' 'drop' 'delete elasticsearch index & all data' elastic_schema_drop
+
 function elastic_schema_create(){ compose_run 'schema' ./bin/create_index; }
+register 'elastic' 'create' 'create elasticsearch index with pelias mapping' elastic_schema_create
+
+function elastic_schema_alias(){ compose_run 'schema' ./bin/alias "$@"; }
+register 'elastic' 'alias' 'Create or update specified alias to point to index defined in pelias.json' elastic_schema_alias
+
 function elastic_start(){
   mkdir -p $DATA_DIR/elasticsearch
   # attemp to set proper permissions if running as root
   chown $DOCKER_USER $DATA_DIR/elasticsearch 2>/dev/null || true
   compose_exec up -d elasticsearch
 }
+register 'elastic' 'start' 'start elasticsearch server' elastic_start
 
 function elastic_stop(){ compose_exec kill elasticsearch; }
-
-register 'elastic' 'drop' 'delete elasticsearch index & all data' elastic_schema_drop
-register 'elastic' 'create' 'create elasticsearch index with pelias mapping' elastic_schema_create
-register 'elastic' 'start' 'start elasticsearch server' elastic_start
 register 'elastic' 'stop' 'stop elasticsearch server' elastic_stop
 
 # to use this function:
@@ -52,5 +56,3 @@ register 'elastic' 'aliases' 'show all elasticsearch aliases' elastic_aliases
 
 function elastic_indices(){ curl --silent  "http://${ELASTIC_HOST:-localhost:9200}/_cat/indices?v"; }
 register 'elastic' 'indices' 'show all elasticsearch indices' elastic_indices
-
-
