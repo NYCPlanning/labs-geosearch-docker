@@ -7,8 +7,8 @@ register 'elastic' 'drop' 'delete elasticsearch index & all data' elastic_schema
 function elastic_schema_create(){ compose_run 'schema' ./bin/create_index; }
 register 'elastic' 'create' 'create elasticsearch index with pelias mapping' elastic_schema_create
 
-function elastic_schema_alias(){ compose_run 'schema' ./bin/alias "$@"; }
-register 'elastic' 'alias' 'Create or update specified alias to point to index defined in pelias.json' elastic_schema_alias
+function elastic_schema_alias(){ compose_run 'schema' ./bin/alias; }
+register 'elastic' 'alias' 'create or update an alias for the api index to point to the schema index (pelias.json api.indexName points to schema.indexName)' elastic_schema_alias
 
 function elastic_start(){
   mkdir -p $DATA_DIR/elasticsearch

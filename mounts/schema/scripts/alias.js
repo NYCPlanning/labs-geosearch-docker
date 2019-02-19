@@ -32,7 +32,7 @@ if (http.maxHeaderSize < 16384) {
   process.exit(1);
 }
 
-const aliasName = process.argv[2];
+const aliasName = config.api.indexName;
 const indexName = config.schema.indexName;
 
 cli.header("create (or update) alias");
@@ -43,7 +43,7 @@ cli.header("create (or update) alias");
 
   if(!indexName in indexNames) {
     console.error(`Index ${indexName} does not exist. Create with 'pelias elastic create'`); 
-    exit(1);
+    process.exit(1);
   }
 
   try {

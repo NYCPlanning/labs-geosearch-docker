@@ -2,10 +2,6 @@ Docker Compose project for NYC Geosearch Services,built on the open source [Peli
 
 
 ## Overview
-
-<img width="751" alt="screen shot 2018-01-18 at 1 12 07 pm" src="https://user-images.githubusercontent.com/1833820/35113991-48b04abc-fc51-11e7-8a4f-7664ddba6492.png">
-
-
 These dockerfiles allow for quickly standing up all of the services that work together to run the pelias geocoder, and is used in both production and development. These include:
 
 - Modified Pelias API - node.js HTTP API that parses search strings and returns results from ES backend, using our custom Document schema
@@ -74,14 +70,18 @@ Usage: pelias [command] [action] [options]
 This is essentially a subset of commands/actions provided by the original tool, with a few operations added to manage PAD data
 
 ## Running Pelias Services
-1. __Run PAD Download and Normalization__
+1. __Install CLI tool__
+
+    See above
+
+2. __Run PAD Download and Normalization__
 
     You can specify a PAD version to download by passing it to the pelias CLI command
     ```sh
     $ pelias normalize nycpad [PAD_VERSION]
     ```
 
-2. __Bring up Elasticsearch and Create Index__
+3. __Bring up Elasticsearch and Create Index__
 
     Index name can be specified in pelias.json, as `schema.indexName`
     ```sh
@@ -104,7 +104,7 @@ This is essentially a subset of commands/actions provided by the original tool, 
     ```
     Note: As with the download step, if elasticsearch and schema images have not yet been pulled, they will be pulled and built as part of these steps
 
-3. __Import PAD Data__
+4. __Import PAD Data__
 
     This step runs the PAD importer to load downloaded PAD data into the running ES database. For more information, see the [Pad Importer](https://github.com/NYCPlanning/labs-geosearch-pad-importer)
     ```sh
@@ -124,7 +124,7 @@ This is essentially a subset of commands/actions provided by the original tool, 
     ```
     Note: Importing the entire PAD dataset will take a fair amount of time and space. If you are bootstrapping/developing, it is recommended to download and import a smaller sample of the dataset #TODO ADD LINK TO importer repo
 
-4. __Bring UP API and Supporting Services__
+5. __Bring UP API and Supporting Services__
 
     The importer and schema containers are ephemeral, meaning that they will exit(0) immediately upon being run. This means you're free to bring up the whole docker compose project, and only the containers that should persist (pelias API, and placeholder and libpostal services) will persist. Alternatively you can specify which containers you'd like to bring up
     ```sh
@@ -136,7 +136,7 @@ This is essentially a subset of commands/actions provided by the original tool, 
     ```
     Note: The libpostal service requires significant memory to function, around 2G for just this one service. Be sure to bump up your docker memory allocation before trying to run all the services at once.
 
-5. __Confirm everything is working!__
+6. __Confirm everything is working!__
     ```sh
     $ docker-compose ps
             Name                      Command               State                       Ports
@@ -169,15 +169,11 @@ This is essentially a subset of commands/actions provided by the original tool, 
 
 ## Schema Customization through Mounting
 
-Our geocoder needs to store and return a few additional fields in addition to those specified by the native pelias schema. We are overriding pelias schema by mounting a few custom files into the pre-built pelias images.
-
-Mounted files can be seen in the [`mounts` directory](https://github.com/NYCPlanning/labs-geosearch-docker/tree/master/mounts). Some of these mounts are more straightforward, while others are more brittle and will hopefully be refactored to more stable solutions soon.
+Mounted files can be seen in the [`mounts` directory](https://github.com/NYCPlanning/labs-geosearch-docker/tree/master/mounts). In order to ensure these mounts continue to work, we have pinned specific pelias image tags in the docker compose file. These should not be updated without confirming the mount files here are compatible with the source code in the new image tag.
 
 - The `schema` directory contains [`document.js`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/schema/document.js), which adds `pad_meta` fields to the document schema registered with ES. This file is mounted into the `pelias/schema` container. This allows for us to maintain the `dynamic: 'strict'` settings also upheld by pelias, while storing our custom fields in a sane, reasonable way.
 
-- The `api` directory contains [`helper/geojsonify_place_details.js`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/api/helper/geojsonify_place_details.js#L61-L65) and [`middleware/renamePlacenames.js`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/api/middleware/renamePlacenames.js#L60-L65), which together ensure the `pad_meta` fields are flattened into the top-level JSON object ultimately returned by the API. These files are mounted into the `pelias/api` container. This modification is vulnerable; it will break with any reorganization or redesign of the API code. It should be revisited, but works for now.
-
-- The `bin` directory contains [`bin/placeholder_download`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/bin/placeholder_download) which enables simple downloading of placeholder data by the placeholder image through the custom pelias CLI. This file is mounted into the placeholder container. It does not replace/interact with any of the source placeholder code, and should be stable.
+- The `api` directory contains [`helper/geojsonify_place_details.js`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/api/helper/geojsonify_place_details.js#L61-L65) and [`middleware/renamePlacenames.js`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/api/middleware/renamePlacenames.js#L60-L65), which together ensure the `pad_meta` fields are flattened into the top-level JSON object ultimately returned by the API. These files are mounted into the `pelias/api` container. This allows us to return our custom object without any additional processing or calls to ES backend.
 
 ## Production Domain
 
@@ -186,3 +182,32 @@ In production, we added a custom nginx configuration to handle SSL, and route tr
 The nginx config should be stored in `/etc/nginx/conf.d/{productiondomain}.conf`
 
 This nginx config also proxies all requests that aren't API calls to the geosearch docs site, so that both the API and the docs can share the same production domain.
+
+## Updating PAD data
+
+To update the data in ES (i.e. when a new version of PAD is available):
+
+1. Download & normalize new data (step 2 above):
+
+    ```sh
+    pelias nycpad normalize [new verison]
+    ```
+
+2. Update `pelias.json` field `schema.indexName` to a new index name including the new version identifier
+
+3. Create new index:
+
+    ```sh
+    pelias elastic create
+    ```
+
+4. Run the import, which will read index name from `pelias.json` and import new data there, leaving old data in tact and accessible to API (step 4 above):
+    ```sh
+    pelias import nycpad
+    ```
+
+5. Update the alias the API reads from (`api.indexName` from `pelias.json`; default `pelias`) to point to the new index (`schema.indexName` from `pelias.json`):
+
+    ```sh
+    pelias elastic alias
+    ```
