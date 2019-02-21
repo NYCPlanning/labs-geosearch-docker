@@ -10,9 +10,6 @@
   },
   "api": {
     "services": {
-      "placeholder": {
-        "url": "http://placeholder:4100"
-      },
       "libpostal": {
         "url": "http://libpostal:4400"
       }
