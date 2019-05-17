@@ -64,7 +64,6 @@ function renameOneRecord(place) {
     });
   }
 
-  console.log("place", place);
   return place;
 }
 
