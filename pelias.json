@@ -1,12 +1,12 @@
 {
   "esclient": {
     "hosts": [{
-      "host": "elasticsearch"
+      "host": "ELASTICSEARCH"
     }],
     "apiVersion":"5.6"
   },
   "schema": {
-    "indexName": "pelias_19a"
+    "indexName": "nycpad_VERSION"
   },
   "api": {
     "services": {
