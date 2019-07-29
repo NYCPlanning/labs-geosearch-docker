@@ -128,7 +128,7 @@ This is essentially a subset of commands/actions provided by the original tool, 
 
     The importer and schema containers are ephemeral, meaning that they will exit(0) immediately upon being run. This means you're free to bring up the whole docker compose project, and only the containers that should persist (pelias API, and placeholder and libpostal services) will persist. Alternatively you can specify which containers you'd like to bring up
     ```sh
-    $ pelias compose up api placeholder libpostal
+    $ pelias compose up api libpostal
 
     OR
 
@@ -184,6 +184,10 @@ The nginx config should be stored in `/etc/nginx/conf.d/{productiondomain}.conf`
 This nginx config also proxies all requests that aren't API calls to the geosearch docs site, so that both the API and the docs can share the same production domain.
 
 ## Updating PAD data
+We do this over the wire, running the normalize & update from a local machine to avoid issues with resource availability.
+
+These steps can also be achieved by running `./importPad.sh [PAD_VERSION]`, but make sure you have the correct elastic connection configured in pelias.json and ELASTIC_HOST env var.
+
 
 To update the data in ES (i.e. when a new version of PAD is available):
 
@@ -201,12 +205,14 @@ To update the data in ES (i.e. when a new version of PAD is available):
     pelias elastic create
     ```
 
-4. Run the import, which will read index name from `pelias.json` and import new data there, leaving old data in tact and accessible to API (step 4 above):
+4. Update `pelias.json` field `esclient.hosts.host` to the host/IP for the remote geosearch resource where ES is running, and be sure you can access the ES host from wherever you will be running the import (this may require changing firewall rules)
+
+5. Run the import, which will read index name from `pelias.json` and import new data there, leaving old data in tact and accessible to API:
     ```sh
     pelias import nycpad
     ```
 
-5. Update the alias the API reads from (`api.indexName` from `pelias.json`; default `pelias`) to point to the new index (`schema.indexName` from `pelias.json`):
+6. Update the API ES alias (`api.indexName` from `pelias.json`; default `pelias`) to point to the new index (`schema.indexName` from `pelias.json`):
 
     ```sh
     pelias elastic alias
