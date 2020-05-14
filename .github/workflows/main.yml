@@ -25,7 +25,7 @@ jobs:
     - name: Bring up Elasticsearch and Create Index
       shell: bash
       run: |
-        pelias compose up elastic
+        pelias compose up elasticsearch
         pelias elastic create
         pelias elastic indices
     
