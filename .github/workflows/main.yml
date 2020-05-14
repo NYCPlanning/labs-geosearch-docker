@@ -29,9 +29,12 @@ jobs:
       shell: bash
       run: |
         pelias compose up elasticsearch
+        pelias elastic wait
         
-        # Wait for elasticsearch service to get ready
-        sleep 1m
+        echo $ELASTIC_HOST
+        
+        pelias elastic status
+        
 
         # Create indices and inspect
         pelias elastic create
