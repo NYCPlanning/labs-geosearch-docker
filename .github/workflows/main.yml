@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      ELASTIC_HOST: localhost
     steps:
     - uses: actions/checkout@v2
 
@@ -32,8 +34,8 @@ jobs:
                 
         echo $ELASTIC_HOST
         docker ps
-        
         pelias elastic status
+        
         pelias elastic wait
         pelias elastic status
         
