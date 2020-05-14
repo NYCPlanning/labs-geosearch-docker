@@ -10,27 +10,36 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - name: set up user 
-      run: |
-        sudo useradd --create-home -p $( echo pelias | openssl passwd -1 -stdin ) -u 1100 pelias
-        sudo usermod -aG docker pelias
-        sudo usermod -aG sudo pelias
-        sudo usermod --shell /bin/bash pelias
-        sudo su - pelias
-        
-        git clone https://github.com/NYCPlanning/labs-geosearch-docker.git geosearch
-        
-        cd geosearch
-        mkdir -p data/elasticsearch
-        
-        # Set up and run geocoder
-        echo "Pulling docker resources..."
-        ./pelias compose pull
+      - name: who am i?
+        run: whoami
+      - name: set up user 
+        run: |
+          sudo useradd --create-home -p $( echo pelias | openssl passwd -1 -stdin ) -u 1100 pelias
+          sudo usermod -aG docker pelias
+          sudo usermod -aG sudo pelias
+          sudo usermod --shell /bin/bash pelias
+          sudo su - pelias
 
-        echo "Bringing up elasticsearch..."
-        ./pelias compose up elasticsearch
+          git clone https://github.com/NYCPlanning/labs-geosearch-docker.git geosearch
 
-        echo "Bringing up libpostal, and api..."
-        ./pelias compose up api libpostal
+          cd geosearch
+          mkdir -p data/elasticsearch
 
-        echo "All done!"
+          echo "Bringing up elasticsearch..."
+          ./pelias compose up elasticsearch
+
+          echo "Bringing up libpostal, and api..."
+          ./pelias compose up api libpostal
+
+          echo "All done!"
+      - name: whoami
+        run: whoami
+      - name: where am i?
+        run: pwd
+      - name: where are the files?
+        run: ls
+      - name: try use docker
+        run: docker ps
+      - name: try pelias
+        run: ./pelias elastic create
+        
