@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: who am i?
         run: whoami
-      - name: set up user 
+      - name: set up user
         run: |
           sudo useradd --create-home -p $( echo pelias | openssl passwd -1 -stdin ) -u 1100 pelias
           sudo usermod -aG docker pelias
@@ -32,14 +32,12 @@ jobs:
           ./pelias compose up api libpostal
 
           echo "All done!"
-      - name: whoami
-        run: whoami
-      - name: where am i?
-        run: pwd
-      - name: where are the files?
-        run: ls
-      - name: try use docker
-        run: docker ps
-      - name: try pelias
+          
+      - name: create
+        working-directory: geosearch
         run: ./pelias elastic create
+      
+      - name: import pad
+        working-directory: geosearch
+        run: ./pelias import nycpad
         
