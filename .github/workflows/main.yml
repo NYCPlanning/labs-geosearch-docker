@@ -19,5 +19,31 @@ jobs:
         source ~/.bash_profile
         sudo ln -s `pwd`/pelias /usr/local/bin
         
-    - name: test cli
-      run: pelias
+    - name: Run PAD Download and Normalization
+      run: echo "this is done somewhere else, let's just skip for now?"
+      
+    - name: Bring up Elasticsearch and Create Index
+      shell: bash
+      run: |
+        pelias compose up elastic
+        pelias elastic create
+        pelias elastic indices
+    
+    - name: Import PAD Data
+      shell: bash
+      run: |
+        pelias import pad
+    
+    - name: Bring UP API and Supporting Services
+      shell: bash
+      run: |
+        pelias compose up api libpostal
+        
+    - name: Confirm everything is working!
+      shell: bash
+      run: |
+        docker-compose ps
+        curl -s localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq
+        curl -s localhost:4000/status
+        curl -s localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq 'keys'
+        
