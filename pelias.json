@@ -1,7 +1,7 @@
 {
   "esclient": {
     "hosts": [{
-      "host": "localhost"
+      "host": "ELASTICSEARCH"
     }],
     "apiVersion":"5.6"
   },
