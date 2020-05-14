@@ -1,0 +1,23 @@
+name: CI & CD ?
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install CLI tool
+      shell: bash
+      run: |
+        echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
+        source ~/.bash_profile
+        ln -s `pwd`/pelias /usr/local/bin
+        
+    - name: test cli
+      run: pelias
