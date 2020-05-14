@@ -19,6 +19,9 @@ jobs:
         source ~/.bash_profile
         sudo ln -s `pwd`/pelias /usr/local/bin
         
+    - name: pull all docker images
+      run: pelias compose pull
+      
     - name: Run PAD Download and Normalization
       run: echo "this is done somewhere else, let's just skip for now?"
       
