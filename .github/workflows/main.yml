@@ -31,7 +31,7 @@ jobs:
         pelias compose up elasticsearch
         
         # Wait for elasticsearch service to get ready
-        sleep 30
+        sleep 1m
 
         # Create indices and inspect
         pelias elastic create
