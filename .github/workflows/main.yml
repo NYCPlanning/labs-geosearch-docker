@@ -17,7 +17,7 @@ jobs:
       run: |
         echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
         source ~/.bash_profile
-        ln -s `pwd`/pelias /usr/local/bin
+        sudo ln -s `pwd`/pelias /usr/local/bin
         
     - name: test cli
       run: pelias
