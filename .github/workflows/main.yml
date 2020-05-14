@@ -29,13 +29,14 @@ jobs:
       shell: bash
       run: |
         pelias compose up elasticsearch
-        pelias elastic wait
-        
+                
         echo $ELASTIC_HOST
+        docker ps
         
         pelias elastic status
+        pelias elastic wait
+        pelias elastic status
         
-
         # Create indices and inspect
         pelias elastic create
         pelias elastic indices
