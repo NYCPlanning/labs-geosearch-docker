@@ -1,12 +1,12 @@
 {
   "esclient": {
     "hosts": [{
-      "host": "ELASTICSEARCH"
+      "host": "localhost"
     }],
     "apiVersion":"5.6"
   },
   "schema": {
-    "indexName": "nycpad_VERSION"
+    "indexName": "nycpad_20a"
   },
   "api": {
     "services": {
