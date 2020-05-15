@@ -24,8 +24,16 @@ jobs:
     - name: create the data directory
       run: |
         mkdir -p data/elasticsearch
+        mkdir -p data/nycpad &&
+        (cd data/nycpad
+          curl -O https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized.zip
+          unzip labs-geosearch-pad-normalized.zip
+          rm *.zip
+          ls
+        )
         sudo chown 1000:1000 -R data
         sudo chown 1000:1000 -R data/elasticsearch
+        sudo chown 1000:1000 -R data/nycpad
         ls -n data
         
     - name: Bring up Elasticsearch and Create Index
@@ -42,12 +50,6 @@ jobs:
       shell: bash
       run: |
         export DATA_DIR=$(pwd)/data
-        sudo mkdir -p $DATA_DIR/nycpad &&
-        (cd $DATA_DIR/nycpad
-        curl -O https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized.zip
-        unzip labs-geosearch-pad-normalized.zip
-        rm *.zip)
-        chown 1000:1000 -R $DATA_DIR/nycpad
         pelias import nycpad
     
     - name: Bring UP API and Supporting Services
