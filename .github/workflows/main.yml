@@ -20,11 +20,6 @@ jobs:
         echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
         source ~/.bash_profile
         sudo ln -s `pwd`/pelias /usr/local/bin
-    
-    - name: normalize pad
-      run: |
-        export DATA_DIR=$(pwd)/data
-        pelias normalize nycpad
 
     - name: create the data directory
       run: |
