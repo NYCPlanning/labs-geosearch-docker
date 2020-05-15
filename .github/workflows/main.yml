@@ -33,7 +33,17 @@ jobs:
       run: |
         export DATA_DIR=$(pwd)/data
         pelias compose up elasticsearch
+        
         pelias elastic wait
+        
+        docker ps 
+        
+        sleep 10 
+        
+        docker ps
+        
+        sleep 10
+        
         pelias elastic create
         pelias elastic indices
         
