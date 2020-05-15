@@ -42,12 +42,12 @@ jobs:
       shell: bash
       run: |
         export DATA_DIR=$(pwd)/data
-        mkdir -p $DATA_DIR/nycpad &&
+        sudo mkdir -p $DATA_DIR/nycpad &&
         (cd $DATA_DIR/nycpad
         curl -O https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized.zip
         unzip labs-geosearch-pad-normalized.zip
-        rm *.zip
-        )
+        rm *.zip)
+        chown 1000:1000 -R $DATA_DIR/nycpad
         pelias import nycpad
     
     - name: Bring UP API and Supporting Services
