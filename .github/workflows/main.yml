@@ -33,23 +33,21 @@ jobs:
       run: |
         export DATA_DIR=$(pwd)/data
         pelias compose up elasticsearch
-        
         pelias elastic wait
-        
-        docker ps 
-        
-        sleep 10 
-        
-        docker ps
-        
-        sleep 10
         
         pelias elastic create
         pelias elastic indices
         
     - name: Import PAD data
+      shell: bash
       run: |
         export DATA_DIR=$(pwd)/data
+        mkdir -p $DATA_DIR/nycpad &&
+        (cd $DATA_DIR/nycpad
+        curl -O https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized.zip
+        unzip labs-geosearch-pad-normalized.zip
+        rm *.zip
+        )
         pelias import nycpad
     
     - name: Bring UP API and Supporting Services
