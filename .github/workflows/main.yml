@@ -26,8 +26,9 @@ jobs:
         mkdir -p data/elasticsearch
         mkdir -p data/nycpad &&
         (cd data/nycpad
-          curl -O https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized.zip
-          unzip labs-geosearch-pad-normalized.zip
+          curl -O https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized-sample-md.zip
+          unzip labs-geosearch-pad-normalized-sample-md.zip
+          mv labs-geosearch-pad-normalized-sample-md.csv labs-geosearch-pad-normalized.csv
           rm *.zip
           ls
         )
