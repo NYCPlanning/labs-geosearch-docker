@@ -20,7 +20,12 @@ jobs:
         echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
         source ~/.bash_profile
         sudo ln -s `pwd`/pelias /usr/local/bin
-        
+    
+    - name: normalize pad
+      run: |
+        export DATA_DIR=$(pwd)/data
+        pelias normalize nycpad
+
     - name: create the data directory
       run: |
         mkdir -p data/elasticsearch
@@ -34,4 +39,24 @@ jobs:
         export DATA_DIR=$(pwd)/data
         pelias compose up elasticsearch
         pelias elastic wait
+        pelias elastic create
+        pelias elastic indices
         
+    - name: Import PAD data
+      run: |
+        export DATA_DIR=$(pwd)/data
+        pelias import nycpad
+    
+    - name: Bring UP API and Supporting Services
+      run: |
+        pelias compose up
+    
+    - name: test if everything is working
+      run: |
+        docker-compose ps
+        
+        curl -s localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq
+        
+        curl -s localhost:4000/status
+        
+        curl -s localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq 'keys'
