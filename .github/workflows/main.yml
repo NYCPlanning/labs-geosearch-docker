@@ -60,8 +60,8 @@ jobs:
       run: |
         docker-compose ps
         
-        curl -s localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq
+        curl localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq '.'
         
         curl -s localhost:4000/status
         
-        curl -s localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq 'keys'
+        curl localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq 'keys'
