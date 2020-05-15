@@ -21,15 +21,13 @@ jobs:
         
     - name: create the data directory
       run: |
-        mkdir -p data/elasticsearch
-        sudo chown 1000:1000 -R data/elasticsearch
+        mkdir -p data
+        sudo chown 1000:1000 -R data
         ls -n data
-        ls -n data/elasticsearch
         
     - name: Bring up Elasticsearch and Create Index
       shell: bash
       run: |
-        export DATA_DIR=$(pwd)/data
         pelias compose up elasticsearch
         pelias elastic wait
         
