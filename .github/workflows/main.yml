@@ -9,31 +9,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      ELASTIC_HOST: localhost
     steps:
-      - name: who am i?
-        run: whoami
-      - name: set up user
-        run: |
-          sudo useradd --create-home -p $( echo pelias | openssl passwd -1 -stdin ) -u 1100 pelias
-          sudo usermod -aG docker pelias
-          sudo usermod -aG sudo pelias
-          sudo usermod --shell /bin/bash pelias
-          sudo su - pelias
+    - uses: actions/checkout@v2
 
-          whoami 
-          
-          git clone https://github.com/NYCPlanning/labs-geosearch-docker.git geosearch
-
-          cd geosearch
-          mkdir -p data/elasticsearch
-
-          ./pelias compose up elasticsearch
-          
-      - name: create
-        working-directory: geosearch
-        run: |
-          ls -l data
-          ls -l data/elasticsearch
+    - name: Install CLI tool
+      shell: bash
+      run: |
+        echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
+        source ~/.bash_profile
+        sudo ln -s `pwd`/pelias /usr/local/bin
+        
+    - name: create the data directory
+      run: |
+        mkdir -p data/elasticsearch
+        chown 1000:0 -R data/elasticsearch
+        ls -n data
+        ls -n data/elasticsearch
+        
+    - name: Bring up Elasticsearch and Create Index
+      shell: bash
+      run: |
+        pelias compose up elasticsearch
+        pelias elastic wait
         
