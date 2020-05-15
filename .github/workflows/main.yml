@@ -22,7 +22,7 @@ jobs:
     - name: create the data directory
       run: |
         mkdir -p data/elasticsearch
-        chown 1000:0 -R data/elasticsearch
+        sudo chown 1000:0 -R data/elasticsearch
         ls -n data
         ls -n data/elasticsearch
         
