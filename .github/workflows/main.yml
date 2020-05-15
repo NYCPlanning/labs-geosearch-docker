@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
     steps:
     - uses: actions/checkout@v2
 
@@ -22,13 +22,14 @@ jobs:
     - name: create the data directory
       run: |
         mkdir -p data/elasticsearch
-        sudo chown 1000:0 -R data/elasticsearch
+        sudo chown 1000:1000 -R data/elasticsearch
         ls -n data
         ls -n data/elasticsearch
         
     - name: Bring up Elasticsearch and Create Index
       shell: bash
       run: |
+        export DATA_DIR=$(pwd)/data
         pelias compose up elasticsearch
         pelias elastic wait
         
