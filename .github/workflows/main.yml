@@ -54,8 +54,7 @@ jobs:
         pelias import nycpad
     
     - name: Bring UP API and Supporting Services
-      run: |
-        pelias compose up
+      run: pelias compose up api libpostal
     
     - name: test if everything is working
       run: |
