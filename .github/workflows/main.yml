@@ -22,30 +22,18 @@ jobs:
           sudo usermod --shell /bin/bash pelias
           sudo su - pelias
 
+          whoami 
+          
           git clone https://github.com/NYCPlanning/labs-geosearch-docker.git geosearch
 
           cd geosearch
           mkdir -p data/elasticsearch
 
-          echo "Bringing up elasticsearch..."
           ./pelias compose up elasticsearch
-
-          echo "Bringing up libpostal, and api..."
-          ./pelias compose up api libpostal
-
-          echo "All done!"
           
       - name: create
         working-directory: geosearch
         run: |
-          ./pelias elastic status
-          docker ps 
-          docker logs pelias_elasticsearch
-          
-          ./pelias elastic wait
-          ./pelias elastic create
-      
-      - name: import pad
-        working-directory: geosearch
-        run: ./pelias import nycpad
+          ls -l data
+          ls -l data/elasticsearch
         
