@@ -53,7 +53,7 @@ services:
       context: "http://github.com/nycplanning/labs-geosearch-pad-normalize.git"
     container_name: pelias_nycpad_normalizer
     volumes:
-      - "${DATA_DIR}:/data"
+      - "${DATA_DIR}:/usr/local/src/scripts/data"
 
   # The ES backend
   elasticsearch:
