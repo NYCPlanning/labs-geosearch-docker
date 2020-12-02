@@ -19,6 +19,7 @@ jobs:
       run: |
         echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
         source ~/.bash_profile
+        sudo rm /usr/local/bin/pelias
         sudo ln -s `pwd`/pelias /usr/local/bin
 
     - name: create the data directory
