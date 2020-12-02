@@ -1,0 +1,67 @@
+name: CI & CD ?
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: self-hosted
+    env:
+      DOCKER_USER: "1000:1000"
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install CLI tool
+      shell: bash
+      run: |
+        echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
+        source ~/.bash_profile
+        sudo ln -s `pwd`/pelias /usr/local/bin
+
+    - name: create the data directory
+      run: |
+        mkdir -p data/elasticsearch
+        mkdir -p data/nycpad &&
+        (cd data/nycpad
+          curl -O https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized-sample-md.zip
+          unzip labs-geosearch-pad-normalized-sample-md.zip
+          mv labs-geosearch-pad-normalized-sample-md.csv labs-geosearch-pad-normalized.csv
+          rm *.zip
+          ls
+        )
+        sudo chown 1000:1000 -R data
+        sudo chown 1000:1000 -R data/elasticsearch
+        sudo chown 1000:1000 -R data/nycpad
+        ls -n data
+        
+    - name: Bring up Elasticsearch and Create Index
+      shell: bash
+      run: |
+        export DATA_DIR=$(pwd)/data
+        pelias compose up elasticsearch
+        pelias elastic wait
+        
+        pelias elastic create
+        pelias elastic indices
+        
+    - name: Import PAD data
+      shell: bash
+      run: |
+        export DATA_DIR=$(pwd)/data
+        pelias import nycpad
+    
+    - name: Bring UP API and Supporting Services
+      run: pelias compose up api libpostal
+    
+    - name: test if everything is working
+      run: |
+        docker-compose ps
+        
+        curl localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq '.'
+        
+        curl -s localhost:4000/status
+        
+        curl localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq 'keys'
