@@ -3,9 +3,6 @@ name: simplified - CI & CD
 on:
   push:
     branches: [ master ]
-    paths: 
-      - "*.sh"
-      - ".yml"
 
 jobs:
   test:
