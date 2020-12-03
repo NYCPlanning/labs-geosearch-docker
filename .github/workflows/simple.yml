@@ -1,0 +1,34 @@
+name: simplified - CI & CD
+
+on:
+  push:
+    branches: [ master ]
+    paths: 
+      - "*.sh"
+      - ".yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest 
+    env:
+      DOCKER_USER: "1000:1000"
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: setup server
+      run: |
+        bash setupServer.sh
+        
+    - name: setup geosearch
+      run: |
+        bash setupGeosearch.sh
+    
+    - name: test if everything is working
+      run: |
+        docker-compose ps
+        
+        curl localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq '.'
+        
+        curl -s localhost:4000/status
+        
+        curl localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq 'keys'
