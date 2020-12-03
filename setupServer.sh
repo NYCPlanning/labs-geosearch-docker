@@ -14,7 +14,7 @@ sudo usermod --shell /bin/bash pelias
 sudo su - pelias
 
 # Checkout geocoder source
-git clone https://github.com/NYCPlanning/labs-geosearch-docker.git geosearch
+git clone https://github.com/SPTKL/labs-geosearch-docker.git geosearch
 
 # Set up custom nginx config
 sudo cp geosearch/nginx.conf /etc/nginx/conf.d/geosearch.planninglabs.nyc.conf
