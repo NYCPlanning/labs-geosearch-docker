@@ -15,7 +15,7 @@
       }
     },
     "host": "api",
-    "indexName": "pelias"
+    "indexName": "nycpad_20a"
   },
   "imports": {
     "nycpad": {
