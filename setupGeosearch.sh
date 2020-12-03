@@ -20,10 +20,11 @@ sudo chown 1000:1000 -R data/nycpad
 ls -n data
 
 export DATA_DIR=$(pwd)/data
+export DOCKER_USER="1000:1000"
 
 echo "Bringing up elasticsearch..."
 ./pelias compose up elasticsearch
-./pelias wait
+./pelias elastic wait
 ./pelias elastic create
 ./pelias elastic indices
 ./pelias import nycpad
