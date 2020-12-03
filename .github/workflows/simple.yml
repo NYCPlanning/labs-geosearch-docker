@@ -18,12 +18,17 @@ jobs:
       run: |
         bash setupGeosearch.sh
     
-    - name: check if everything is working
-      run: |
-        docker ps
-        
+    - name: check if everything is working 1
+      run: |        
         curl localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq '.'
         
+    - name: check if everything is working 2
+      if: always()
+      run: | 
         curl -s localhost:4000/status
-        
+    
+    - name: check if everything is working 2
+      if: always()
+      run: |        
         curl localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq 'keys'
+        curl localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq
