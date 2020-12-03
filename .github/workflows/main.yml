@@ -17,7 +17,15 @@ jobs:
       DOCKER_USER: "1000:1000"
     steps:
     - uses: actions/checkout@v2
-
+      
+    - name: setup server
+      run: |
+        bash setupServer.sh
+        
+    - name: setup geosearch
+      run: |
+        bash setupGeosearch.sh
+        
     - name: Install CLI tool
       shell: bash
       run: |
