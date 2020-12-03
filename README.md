@@ -85,7 +85,7 @@ This is essentially a subset of commands/actions provided by the original tool, 
 
     Index name can be specified in pelias.json, as `schema.indexName`
     ```sh
-    $ pelias compose up elastic
+    $ pelias compose up elasticsearch
 
     Creating pelias_elasticsearch ... done
 
@@ -108,7 +108,7 @@ This is essentially a subset of commands/actions provided by the original tool, 
 
     This step runs the PAD importer to load downloaded PAD data into the running ES database. For more information, see the [Pad Importer](https://github.com/NYCPlanning/labs-geosearch-pad-importer)
     ```sh
-    $ pelias import pad
+    $ pelias import nycpad
     2019-02-14T16:45:27.109Z - info: [nycpad] Creating read stream for: /data/nycpad/labs-geosearch-pad-normalized.csv
     2019-02-14T16:45:27.939Z - info: [dbclient]  paused=true, transient=10, current_length=0
     2019-02-14T16:45:27.940Z - info: [dbclient]  paused=true, transient=10, current_length=0
