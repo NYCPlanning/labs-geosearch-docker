@@ -20,7 +20,7 @@ jobs:
     
     - name: check if everything is working 1
       run: |        
-        curl localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq '.'
+        curl localhost:4000/expand?address=120%20Broadway%20NY%20NY | jq '.'
         
     - name: check if everything is working 2
       if: always()
