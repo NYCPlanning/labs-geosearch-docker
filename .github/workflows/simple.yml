@@ -1,4 +1,4 @@
-name: simplified - CI & CD
+name: GeoSearch Deployment testing
 
 on:
   push:
@@ -7,8 +7,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest 
-    env:
-      DOCKER_USER: "1000:1000"
     steps:
     - uses: actions/checkout@v2
       
@@ -20,9 +18,9 @@ jobs:
       run: |
         bash setupGeosearch.sh
     
-    - name: test if everything is working
+    - name: check if everything is working
       run: |
-        docker-compose ps
+        docker ps
         
         curl localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq '.'
         
