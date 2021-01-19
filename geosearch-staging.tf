@@ -59,21 +59,7 @@ resource "digitalocean_droplet" "geosearch_staging" {
             private_key = file(var.pvt_key)
         }
     }
- 
-    # # Copy nginx config (ignore nginx set up for now)
-    # provisioner "remote-exec" {
-    #     inline = [
-    #         "cp /home/pelias/geosearch/nginx.conf /etc/nginx/conf.d/geosearch.planninglabs.nyc.conf",
-    #         "systemctl restart nginx"
-    #     ]
-
-    #     connection {
-    #         type = "ssh"
-    #         user = "root"
-    #         private_key = file(var.pvt_key)
-    #     }
-    # }
-
+    
     # Set up geosearch
     provisioner "remote-exec" {
         inline = [
@@ -87,8 +73,8 @@ resource "digitalocean_droplet" "geosearch_staging" {
 
             # Pulling normalized pad from digitalocean spaces
             # "./pelias normalize nycpad 20a",
-            "curl -o data/nycpad/labs-geosearch-pad-normalized.zip https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized.zip",
-            "(cd data/nycpad; unzip labs-geosearch-pad-normalized.zip)",
+            "curl -o data/nycpad/labs-geosearch-pad-normalized-sample-sm.zip https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized-sample-sm.zip",
+            "(cd data/nycpad; unzip labs-geosearch-pad-normalized-sample-sm.zip; mv labs-geosearch-pad-normalized-sample-sm.csv labs-geosearch-pad-normalized.csv)",
             
             # Set up the correct permission for elasticsearch
             "echo '${var.password}' | sudo -S -n chown 1100 -R data",
@@ -106,6 +92,7 @@ resource "digitalocean_droplet" "geosearch_staging" {
 
             # Import pad, this would take a while
             "./pelias import nycpad",
+            "./pelias compose up nginx"
         ]
 
         connection {
@@ -114,4 +101,16 @@ resource "digitalocean_droplet" "geosearch_staging" {
             private_key = file(var.pvt_key)
         }
     }
+}
+
+resource "digitalocean_record" "geosearch_staging" {
+  domain = "nycplanningdigital.com"
+  type   = "A"
+  name   = "staging.geosearch"
+  value  = digitalocean_droplet.geosearch_staging.ipv4_address
+}
+
+output "ipv4_address" {
+  value     = digitalocean_droplet.geosearch_staging.ipv4_address
+  sensitive = true
 }
