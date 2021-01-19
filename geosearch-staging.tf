@@ -1,4 +1,4 @@
-resource "digitalocean_droplet" "geosearch-staging" {
+resource "digitalocean_droplet" "geosearch_staging" {
     image = "docker-20-04"
     name = "geosearch-staging"
     region = "nyc3"
@@ -19,7 +19,8 @@ resource "digitalocean_droplet" "geosearch-staging" {
     provisioner "remote-exec" {
         inline = [
             # Adding user pelias
-            "useradd --create-home -p '${var.password}'  -u 1100 pelias",
+            "useradd --create-home -u 1100 pelias",
+            "echo '${var.password}' | passwd pelias --stdin",
             "usermod -aG docker pelias",
             "usermod -aG sudo pelias",
             "usermod --shell /bin/bash pelias",

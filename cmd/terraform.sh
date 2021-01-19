@@ -33,3 +33,9 @@ function terraform_destroy() {
         -auto-approve
 }
 register 'terraform' 'destroy' 'destroy the server/service that was just created as a clean up step' terraform_destroy
+
+function terraform_ssh() {
+    ipv4_address=$(cat terraform.tfstate | jq -r '.resources[] | select(.type | contains("digitalocean_droplet")) | .instances[0] | .attributes.ipv4_address')
+    ssh pelias@$ipv4_address -i $PVT_KEY
+}
+register 'terraform' 'ssh' 'ssh into the newly created digitalocean droplet' terraform_ssh
