@@ -1,4 +1,4 @@
-resource "digitalocean_droplet" "geosearch_staging" {
+resource "digitalocean_droplet" "server" {
     image = "docker-20-04"
     name = "geosearch-staging"
     region = "nyc3"
@@ -34,8 +34,7 @@ resource "digitalocean_droplet" "geosearch_staging" {
             "chmod 700 /home/pelias/.ssh",
             "chmod 600 /home/pelias/.ssh/authorized_keys",
 
-            # Install nginx and certbot (ignore nginx set up for now)
-            # "apt -q -y install nginx certbot python3-certbot-nginx"
+            # Install unzip and the data folders for nycpad and elasticsearch
             "apt install -y unzip",
             "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/elasticsearch'",
             "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/nycpad'"
@@ -103,14 +102,37 @@ resource "digitalocean_droplet" "geosearch_staging" {
     }
 }
 
-resource "digitalocean_record" "geosearch_staging" {
-  domain = "nycplanningdigital.com"
+
+resource "digitalocean_loadbalancer" "loadbalancer" {
+  name   = "geosearchstaging"
+  region = "nyc3"
+
+  forwarding_rule {
+    entry_port     = 443
+    entry_protocol = "https"
+
+    target_port     = 80
+    target_protocol = "http"
+
+    certificate_name = "geosearch-staging"
+  }
+
+  healthcheck {
+    port     = 22
+    protocol = "tcp"
+  }
+
+  droplet_ids = [digitalocean_droplet.server.id]
+}
+
+resource "digitalocean_record" "record" {
+  domain = "planninglabs.nyc"
   type   = "A"
   name   = "staging.geosearch"
-  value  = digitalocean_droplet.geosearch_staging.ipv4_address
+  value  = digitalocean_loadbalancer.loadbalancer.ip
 }
 
 output "ipv4_address" {
-  value     = digitalocean_droplet.geosearch_staging.ipv4_address
+  value     = digitalocean_droplet.server.ipv4_address
   sensitive = true
 }
