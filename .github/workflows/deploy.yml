@@ -1,0 +1,44 @@
+name: 'Deploy - Terraform'
+on:
+  push:
+    branches:
+      - 49-terraform
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      DATA_DIR: ./data
+      DOCKER_USER: 1100
+      DO_PAT: ${{ serets.DO_PAT }}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install ssh key
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$PRIVATE_KEY" > ~/.ssh/terraform
+        chmod 600 ~/.ssh/terraform
+    
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+        
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DO_PAT }}
+      
+    - name: Terraform Plan
+      run: ./pelias terraform plan
+
+    - name: Terraform Apply
+      if: >-
+        github.ref == 'refs/heads/49-terraform' && 
+        github.event_name == 'push'
+      run: ./pelias terraform apply

@@ -9,7 +9,6 @@ terraform {
 
 variable "do_token" {}
 variable "pvt_key" {}
-variable "pub_key" {}
 variable "password" {}
 
 provider "digitalocean" {
@@ -18,4 +17,16 @@ provider "digitalocean" {
 
 data "digitalocean_ssh_key" "terraform" {
   name = "terraform"
+}
+
+data "digitalocean_tag" "green" {
+  name = "green"
+}
+
+data "digitalocean_tag" "labs" {
+  name = "labs"
+}
+
+data "digitalocean_loadbalancer" "geosearch" {
+  name = "geosearch"
 }
