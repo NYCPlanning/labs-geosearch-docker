@@ -11,4 +11,4 @@ function set_env {
   done
 }
 
-set_env .env
+set_env .env version.env

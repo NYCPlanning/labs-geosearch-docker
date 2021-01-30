@@ -21,7 +21,7 @@
     "nycpad": {
       "download": [
         {
-          "sourceURL": "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized.zip"
+          "sourceURL": "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/latest/labs-geosearch-pad-normalized.zip"
         }
       ],
       "datapath": "/data/nycpad",

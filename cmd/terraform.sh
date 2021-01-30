@@ -2,12 +2,14 @@
 set -e;
 PASSWORD=${PASSWORD:-$( echo pelias | openssl passwd -1 -stdin )}
 PVT_KEY=${PVT_KEY:-~/.ssh/terraform}
+VERSION=${VERSION:-latest}
 
 function terraform_plan() { 
     terraform plan\
         -var "do_token=${DO_PAT}" \
         -var "pvt_key=${PVT_KEY}" \
         -var "password=${PASSWORD}"\
+        -var "pad_version=${VERSION}"\
         -lock=false
 }
 register 'terraform' 'plan' 'this is a dry run without actually creating a server in digitalocean' terraform_plan
@@ -17,6 +19,7 @@ function terraform_apply() {
         -var "do_token=${DO_PAT}" \
         -var "pvt_key=${PVT_KEY}" \
         -var "password=${PASSWORD}"\
+        -var "pad_version=${VERSION}"\
         -lock=false\
         -auto-approve
 }
@@ -27,6 +30,7 @@ function terraform_destroy() {
         -var "do_token=${DO_PAT}" \
         -var "pvt_key=${PVT_KEY}" \
         -var "password=${PASSWORD}"\
+        -var "pad_version=${VERSION}"\
         -lock=false\
         -auto-approve
 }

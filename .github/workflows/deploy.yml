@@ -1,11 +1,9 @@
 name: 'Deploy - Terraform'
-on:
-  push:
-    branches:
-      - 49-terraform
+on: [push]
 jobs:
   terraform:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+    if: "contains(github.event.head_commit.message, '[deploy]')"
     defaults:
       run:
         shell: bash
@@ -39,6 +37,6 @@ jobs:
 
     - name: Terraform Apply
       if: >-
-        github.ref == 'refs/heads/49-terraform' && 
+        github.ref == 'refs/heads/master' && 
         github.event_name == 'push'
       run: ./pelias terraform apply

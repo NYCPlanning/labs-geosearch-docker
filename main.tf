@@ -1,6 +1,11 @@
+locals {
+  droplet_name = "geosearch-${var.pad_version}-${formatdate("YYYY-MM-DD-hh'h'mm", timestamp())}"
+  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/${var.pad_version}/labs-geosearch-pad-normalized.zip"
+}
+
 resource "digitalocean_droplet" "server" {
   image  = "docker-20-04"
-  name   = "geosearch-${formatdate("YYYY-MM-DD-hh'h'mm", timestamp())}"
+  name   = local.droplet_name
   region = "nyc3"
   size   = "s-4vcpu-8gb"
   tags = [
@@ -75,8 +80,7 @@ resource "digitalocean_droplet" "server" {
       "chmod +x ./pelias",
 
       # Pulling normalized pad from digitalocean spaces
-      # "./pelias normalize nycpad 20a",
-      "curl -o data/nycpad/labs-geosearch-pad-normalized.zip https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/latest/labs-geosearch-pad-normalized.zip",
+      "curl -o data/nycpad/labs-geosearch-pad-normalized.zip ${local.normalized_pad_url}",
       "(cd data/nycpad; unzip labs-geosearch-pad-normalized.zip)",
 
       # Set up the correct permission for elasticsearch
@@ -114,8 +118,8 @@ resource "digitalocean_droplet" "server" {
   provisioner "local-exec" {
     command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
     environment = {
-      loadbalancer_id = "${data.digitalocean_loadbalancer.geosearch.id}"
-      droplet_id      = "${self.id}"
+      loadbalancer_id = data.digitalocean_loadbalancer.geosearch.id
+      droplet_id      = self.id
     }
   }
 }

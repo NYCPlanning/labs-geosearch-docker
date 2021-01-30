@@ -10,6 +10,7 @@ terraform {
 variable "do_token" {}
 variable "pvt_key" {}
 variable "password" {}
+variable "pad_version" {}
 
 provider "digitalocean" {
   token = var.do_token
