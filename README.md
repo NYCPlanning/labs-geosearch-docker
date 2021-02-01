@@ -1,7 +1,17 @@
 Docker Compose project for NYC Geosearch Services,built on the open source [Pelias](https://github.com/pelias/pelias) geocoder and [NYC's Property Address Directory (PAD)](https://www1.nyc.gov/site/planning/data-maps/open-data.page)
 
-
 ## Overview
+
+- [About](#about)
+- [Config-Driven](#config-driven)
+- [Pelias CLI tool](pelias-cli-tool)
+- [Running Pelias Services](#running-pelias-services)
+- [Schema Customization through Mounting](#schema-customization-through-mounting)
+- [Production Domain](#production-domain)
+- [Deployment 🚀](#deployment)
+
+## About
+
 These dockerfiles allow for quickly standing up all of the services that work together to run the pelias geocoder, and is used in both production and development. These include:
 
 - Modified Pelias API - node.js HTTP API that parses search strings and returns results from ES backend, using our custom Document schema
@@ -9,6 +19,7 @@ These dockerfiles allow for quickly standing up all of the services that work to
 - Elasticsearch - the backend for the geocoder, where all address data is stored
 
 This repo serves as "home base" for the GeoSearch project, as the docker compose project orchestrates a functioning set up.  Other relevant code for our Pelias deployment:
+
 - [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) - an R script that ingests and transforms raw Property Address Database (PAD) data, most significantly interpolating valid address ranges.
 - [geosearch-pad-importer](https://github.com/NYCPlanning/labs-geosearch-pad-importer) - a Pelias importer for normalized NYC PAD data.
 - [geosearch-docs](https://github.com/NYCPlanning/labs-geosearch-docs) - an interactive documentation site for the Geosearch API
@@ -18,27 +29,32 @@ Docker Compose allows us to quickly spin up the pelias services we need, and run
 We are leveraging a CLI tool `pelias` introduced in the recent [pelias/docker](https://github.com/pelias/docker) project. Here it had been trimmed down and modified to address the specific use-cases of our project
 For more information on Pelias services, including many which we are not using here at City Planning, check out the `pelias/docker` project, or their [documentation](https://github.com/pelias/documentation)
 
-
 ## Config-Driven
+
 Much of this environment is config-driven, and the two files you should pay attention to are:
+
 - [docker-compose.yml](https://github.com/NYCPlanning/labs-geosearch-dockerfiles/blob/master/pelias.json) - configurations for each of the named services, including images to use, environment variable definitions, and volume mounts.
 - [pelias.json](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/pelias.json) - a shared config file used by all of the pelias services
 
 ## Pelias CLI tool
+
 All of the necessary steps/functionality have been wrapped in this `pelias` CLI tool. To set up the tool, add [`pelias` file](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/pelias) in this repo to your path, or create a symlink to the executable in an existing path location:
 
 To add the location of the pelias executable to your PATH, run this from the root dir of this repo:
+
 ```sh
-$ echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
-$ source ~/.bash_profile
+echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
+source ~/.bash_profile
 ```
 
 To add a symlink to the pelias executable to an existing PATH location (maybe `/usr/loca/bin`, `/usr/bin`, etc...), run this from the root dir of this repo:
+
 ```sh
-$ ln -s `pwd`/pelias /usr/local/bin # or wherever you'd like to install the executable in your PATH
+ln -s `pwd`/pelias /usr/local/bin # or wherever you'd like to install the executable in your PATH
 ```
 
 Once you have set up pelias, you can see all possible commands by running `pelias`:
+
 ```sh
 $ pelias
 
@@ -65,11 +81,16 @@ Usage: pelias [command] [action] [options]
   elastic    indices                show all elasticsearch indices
   import     nycpad                 (re)import NYC PAD data
   normalize  nycpad                 (re)download nycpad data, normalize, and save; version can optionally be specified
-
+  terraform  plan               this is a dry run without actually creating a server in digitalocean
+  terraform  apply              actually applying terraform configurations
+  terraform  destroy            destroy the server/service that was just created as a clean up step
+  terraform  ssh                ssh into the newly created digitalocean droplet
 ```
+
 This is essentially a subset of commands/actions provided by the original tool, with a few operations added to manage PAD data
 
 ## Running Pelias Services
+
 1. __Install CLI tool__
 
     See above
@@ -77,13 +98,16 @@ This is essentially a subset of commands/actions provided by the original tool, 
 2. __Run PAD Download and Normalization__
 
     You can specify a PAD version to download by passing it to the pelias CLI command
+    > Note: in a deployment, we will pull normalized pad file directly from **DigitalOcean Spaces**
+
     ```sh
-    $ pelias normalize nycpad [PAD_VERSION]
+    pelias normalize nycpad [PAD_VERSION]
     ```
 
 3. __Bring up Elasticsearch and Create Index__
 
     Index name can be specified in pelias.json, as `schema.indexName`
+
     ```sh
     $ pelias compose up elasticsearch
 
@@ -102,11 +126,13 @@ This is essentially a subset of commands/actions provided by the original tool, 
     health status index  uuid                   pri rep docs.count docs.deleted store.size pri.store.size
     green  open   pelias aTRPQXrZQMm4Dboo3AI8gg   5   0          0            0       810b           810b
     ```
+
     Note: As with the download step, if elasticsearch and schema images have not yet been pulled, they will be pulled and built as part of these steps
 
 4. __Import PAD Data__
 
     This step runs the PAD importer to load downloaded PAD data into the running ES database. For more information, see the [Pad Importer](https://github.com/NYCPlanning/labs-geosearch-pad-importer)
+
     ```sh
     $ pelias import nycpad
     2019-02-14T16:45:27.109Z - info: [nycpad] Creating read stream for: /data/nycpad/labs-geosearch-pad-normalized.csv
@@ -122,11 +148,13 @@ This is essentially a subset of commands/actions provided by the original tool, 
     , failed_records=0, address=11901, persec=355.7
     ...
     ```
+
     Note: Importing the entire PAD dataset will take a fair amount of time and space. If you are bootstrapping/developing, it is recommended to download and import a smaller sample of the dataset #TODO ADD LINK TO importer repo
 
 5. __Bring UP API and Supporting Services__
 
     The importer and schema containers are ephemeral, meaning that they will exit(0) immediately upon being run. This means you're free to bring up the whole docker compose project, and only the containers that should persist (pelias API, and placeholder and libpostal services) will persist. Alternatively you can specify which containers you'd like to bring up
+
     ```sh
     $ pelias compose up api libpostal
 
@@ -134,9 +162,11 @@ This is essentially a subset of commands/actions provided by the original tool, 
 
     $ pelias compose up
     ```
+
     Note: The libpostal service requires significant memory to function, around 2G for just this one service. Be sure to bump up your docker memory allocation before trying to run all the services at once.
 
 6. __Confirm everything is working!__
+
     ```sh
     $ docker-compose ps
             Name                      Command               State                       Ports
@@ -179,41 +209,16 @@ Mounted files can be seen in the [`mounts` directory](https://github.com/NYCPlan
 
 In production, we added a custom nginx configuration to handle SSL, and route traffic to the pelias api running internally on port 4000.  The nginx config [Jinja2](http://jinja.pocoo.org/) template is saved in this repo as [`nginx.conf`](nginx.conf).
 
-The nginx config should be stored in `/etc/nginx/conf.d/{productiondomain}.conf`
-
 This nginx config also proxies all requests that aren't API calls to the geosearch docs site, so that both the API and the docs can share the same production domain.
 
-## Updating PAD data
-We do this over the wire, running the normalize & update from a local machine to avoid issues with resource availability.
+## Deployment 🚀
 
-These steps can also be achieved by running `./importPad.sh [PAD_VERSION]`, but make sure you have the correct elastic connection configured in pelias.json and ELASTIC_HOST env var.
+When a new quarterly update of PAD available on Bytes of the Big Apples:
 
+1. Head to [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) to trigger a PAD Normalization process. Which will produce the latest version of normalized pad and deploy to DigitalOcean Spaces.
 
-To update the data in ES (i.e. when a new version of PAD is available):
+2. Once we confirm that the PAD Normalization process is complete. Change the PAD version under `versoin.env` to reflect the latest version of PAD made available (e.g.`VERSION=21a`), and create a pull request.
 
-1. Download & normalize new data (step 2 above):
+> Based on the pull request, terraform will generate an execution plan and post the plan in the pull request comment section.
 
-    ```sh
-    pelias nycpad normalize [new verison]
-    ```
-
-2. Update `pelias.json` field `schema.indexName` to a new index name including the new version identifier
-
-3. Create new index:
-
-    ```sh
-    pelias elastic create
-    ```
-
-4. Update `pelias.json` field `esclient.hosts.host` to the host/IP for the remote geosearch resource where ES is running, and be sure you can access the ES host from wherever you will be running the import (this may require changing firewall rules)
-
-5. Run the import, which will read index name from `pelias.json` and import new data there, leaving old data in tact and accessible to API:
-    ```sh
-    pelias import nycpad
-    ```
-
-6. Update the API ES alias (`api.indexName` from `pelias.json`; default `pelias`) to point to the new index (`schema.indexName` from `pelias.json`):
-
-    ```sh
-    pelias elastic alias
-    ```
+3. Review the execution plan and merge into master, a fresh deployment of geosearch will be automatically kicked off using github actions.
