@@ -22,7 +22,6 @@ jobs:
         
     - name: Initialize Terraform
       id: init
-      if: github.event_name == 'pull_request'
       run: terraform init
       
     - name: Terraform Plan
@@ -58,7 +57,7 @@ jobs:
         github.event_name == 'push'
       with:
         token: ${{ secrets.DO_PAT }}
-        
+
     - name: Install ssh key
       if: >-
         github.ref == 'refs/heads/master' && 
