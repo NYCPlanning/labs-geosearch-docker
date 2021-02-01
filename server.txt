@@ -1,3 +1,0 @@
-droplet: Docker 18.06.1~ce~3 on 18.04 (Ubuntu)
-specs: 8GB Memory, 4CPU, 160 GB Disk
-datacenter: NYC3 (required to associate with existing geosearch floating IP)

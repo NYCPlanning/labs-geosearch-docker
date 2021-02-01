@@ -3,6 +3,16 @@ networks:
   default:
     driver: bridge
 services:
+  nginx:
+    image: nginx:1.15-alpine
+    restart: unless-stopped
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    
   # image tag from 2019-02-14 pinned to ensure mount compatibility. Confirm before updating
   api:
     image: pelias/api:master-2019-02-14-e2fd040514ec657824c06b582e9a7afad0765c34
