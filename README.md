@@ -8,7 +8,7 @@ Docker Compose project for NYC Geosearch Services,built on the open source [Peli
 - [Running Pelias Services](#running-pelias-services)
 - [Schema Customization through Mounting](#schema-customization-through-mounting)
 - [Production Domain](#production-domain)
-- [Deployment 🚀](#deployment)
+- [Deployment 🚀](#deployment-)
 
 ## About
 
