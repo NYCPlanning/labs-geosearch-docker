@@ -3,6 +3,7 @@ set -e;
 PASSWORD=${PASSWORD:-$( echo pelias | openssl passwd -1 -stdin )}
 PVT_KEY=${PVT_KEY:-~/.ssh/terraform}
 VERSION=${VERSION:-latest}
+LOADBALANCER=$(doctl compute load-balancer ls geosearch -o json | jq -r '.[] | .id')
 
 function terraform_plan() { 
     terraform plan\
@@ -10,6 +11,7 @@ function terraform_plan() {
         -var "pvt_key=${PVT_KEY}" \
         -var "password=${PASSWORD}"\
         -var "pad_version=${VERSION}"\
+        -var "loadbalancer"=${LOADBALANCER}\
         -lock=false
 }
 register 'terraform' 'plan' 'this is a dry run without actually creating a server in digitalocean' terraform_plan
@@ -20,6 +22,7 @@ function terraform_apply() {
         -var "pvt_key=${PVT_KEY}" \
         -var "password=${PASSWORD}"\
         -var "pad_version=${VERSION}"\
+        -var "loadbalancer"=${LOADBALANCER}\
         -lock=false\
         -auto-approve
 }
@@ -31,6 +34,7 @@ function terraform_destroy() {
         -var "pvt_key=${PVT_KEY}" \
         -var "password=${PASSWORD}"\
         -var "pad_version=${VERSION}"\
+        -var "loadbalancer"=${LOADBALANCER}\
         -lock=false\
         -auto-approve
 }

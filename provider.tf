@@ -11,6 +11,7 @@ variable "do_token" {}
 variable "pvt_key" {}
 variable "password" {}
 variable "pad_version" {}
+variable "loadbalancer" {}
 
 provider "digitalocean" {
   token = var.do_token
@@ -26,8 +27,4 @@ data "digitalocean_tag" "green" {
 
 data "digitalocean_tag" "labs" {
   name = "labs"
-}
-
-data "digitalocean_loadbalancer" "geosearch" {
-  name = "geosearch"
 }

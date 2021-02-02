@@ -17,6 +17,17 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DO_PAT }}
+
+    - name: Install ssh key
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$PRIVATE_KEY" > ~/.ssh/terraform
+        chmod 600 ~/.ssh/terraform
+
     - name: Install Terraform
       uses: hashicorp/setup-terraform@v1
         
@@ -49,23 +60,6 @@ jobs:
             repo: context.repo.repo,
             body: output
           })
-
-    - name: Install doctl
-      uses: digitalocean/action-doctl@v2
-      if: >-
-        github.ref == 'refs/heads/master' && 
-        github.event_name == 'push'
-      with:
-        token: ${{ secrets.DO_PAT }}
-
-    - name: Install ssh key
-      if: >-
-        github.ref == 'refs/heads/master' && 
-        github.event_name == 'push'
-      run: |
-        mkdir -p ~/.ssh/
-        echo "$PRIVATE_KEY" > ~/.ssh/terraform
-        chmod 600 ~/.ssh/terraform
 
     - name: Terraform Apply
       if: >-

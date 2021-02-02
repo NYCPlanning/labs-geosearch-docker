@@ -118,7 +118,7 @@ resource "digitalocean_droplet" "server" {
   provisioner "local-exec" {
     command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
     environment = {
-      loadbalancer_id = data.digitalocean_loadbalancer.geosearch.id
+      loadbalancer_id = var.loadbalancer
       droplet_id      = self.id
     }
   }
