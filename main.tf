@@ -21,7 +21,7 @@ resource "digitalocean_droplet" "server" {
     user        = "root"
     type        = "ssh"
     private_key = file(var.pvt_key)
-    timeout     = "1m"
+    timeout     = "10m"
   }
 
   # set up server with sudo user pelias
