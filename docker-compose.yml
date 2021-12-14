@@ -60,7 +60,7 @@ services:
   # NYC PAD normalizer
   nycpad_normalizer:
     build:
-      context: "http://github.com/nycplanning/labs-geosearch-pad-normalize.git"
+      context: "http://github.com/nycplanning/labs-geosearch-pad-normalize.git#main"
     container_name: pelias_nycpad_normalizer
     volumes:
       - "${DATA_DIR}:/usr/local/src/scripts/data"
@@ -72,6 +72,8 @@ services:
     user: "${DOCKER_USER}"
     restart: always
     ports: [ "9200:9200", "9300:9300" ]
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m -Dlog4j2.formatMsgNoLookups=true"
     volumes:
       - "${DATA_DIR}/elasticsearch:/usr/share/elasticsearch/data"
     ulimits:
