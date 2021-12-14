@@ -12,15 +12,15 @@ jobs:
     env:
       DATA_DIR: ./data
       DOCKER_USER: 1100
-      DO_PAT: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+      DO_PAT: ${{ secrets.DO_PAT }}
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
     steps:
     - uses: actions/checkout@v2
     
     - name: Install doctl
-      uses: digitalocean/action-doctl@v2
+      uses: digitalocean/action-doctl@v2.1
       with:
-        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        token: ${{ secrets.DO_PAT }}
 
     - name: Install ssh key
       run: |
