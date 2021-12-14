@@ -1,4 +1,5 @@
 #!/bin/bash
+# temp
 set -e;
 PASSWORD=${PASSWORD:-$( echo pelias | openssl passwd -1 -stdin )}
 PVT_KEY=${PVT_KEY:-~/.ssh/terraform}
