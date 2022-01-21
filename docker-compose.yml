@@ -15,7 +15,7 @@ services:
     
   # image tag from 2019-02-14 pinned to ensure mount compatibility. Confirm before updating
   api:
-    image: pelias/api:master-2019-02-14-e2fd040514ec657824c06b582e9a7afad0765c34
+    image: pelias/api:master-2019-11-25-5632edf0c665d0bed15997eaacbe315d38193d56
     container_name: pelias_api
     user: "${DOCKER_USER}"
     restart: always
@@ -30,7 +30,7 @@ services:
   # defines the ES schema used by pelias API
   # image tag from 2019-02-15 pinned to ensure mount compatibility. Confirm before updating
   schema:
-    image: pelias/schema:master-2019-02-15-62a9ba10bf35811ea6e742b5eb5830d0b1be3e92
+    image: pelias/schema:master-2019-11-29-b1ceba87028a886d140d7d2d14473dca45ca2d2a
     container_name: pelias_schema
     user: "${DOCKER_USER}"
     volumes:
@@ -67,7 +67,7 @@ services:
 
   # The ES backend
   elasticsearch:
-    image: pelias/elasticsearch:5.6.12
+    image: pelias/elasticsearch:6.8.5
     container_name: pelias_elasticsearch
     user: "${DOCKER_USER}"
     restart: always
