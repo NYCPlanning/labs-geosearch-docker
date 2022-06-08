@@ -1,4 +1,4 @@
-name: 'Deploy - Terraform'
+name: 'Deploy - Terraform - Feature Branch'
 on: 
   push:
     branches-ignore:
