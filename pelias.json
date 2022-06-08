@@ -1,9 +1,9 @@
 {
-  "esclient": {
-    "hosts": [{
-      "host": "ELASTICSEARCH"
-    }],
-    "apiVersion":"5.6"
+   "esclient": {
+    "apiVersion": "7.5",
+    "hosts": [
+      { "host": "elasticsearch" }
+    ]
   },
   "schema": {
     "indexName": "pelias"
@@ -18,16 +18,8 @@
     "indexName": "pelias"
   },
   "imports": {
-    "nycpad": {
-      "download": [
-        {
-          "sourceURL": "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/latest/labs-geosearch-pad-normalized.zip"
-        }
-      ],
-      "datapath": "/data/nycpad",
-      "import": [{
-          "filename":"labs-geosearch-pad-normalized.csv"
-      }]
+    "csv": {
+      "datapath": "/data/nycpad"
     }
   }
 }

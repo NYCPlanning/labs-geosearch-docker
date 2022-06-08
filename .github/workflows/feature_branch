@@ -1,0 +1,67 @@
+name: 'Deploy - Terraform'
+on: 
+  push:
+    branches-ignore:
+      - main
+jobs:
+  terraform:
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash
+    env:
+      DATA_DIR: ./data
+      DOCKER_USER: 1100
+      DO_PAT: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN}}
+      PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2.1.0
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+    - name: Install ssh key
+      run: |
+        mkdir -p ~/.ssh/
+        echo "$PRIVATE_KEY" > ~/.ssh/terraform
+        chmod 600 ~/.ssh/terraform
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 0.13.1
+        
+    - name: Initialize Terraform
+      id: init
+      run: terraform init
+      
+    - name: Terraform Plan
+      id: plan
+      run: ./pelias terraform plan
+    
+    - name: Update Pull Request
+      uses: actions/github-script@0.9.0
+      if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `#### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+          <details><summary>Show Plan</summary>
+          \`\`\`${process.env.PLAN}\`\`\`
+          </details>
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+          
+          github.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
+
+    - name: Terraform Apply
+      run: ./pelias terraform apply

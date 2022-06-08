@@ -1,6 +1,6 @@
 locals {
   droplet_name = "geosearch-${var.pad_version}-${formatdate("YYYY-MM-DD-hh'h'mm", timestamp())}"
-  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/${var.pad_version}/labs-geosearch-pad-normalized.zip"
+  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/new_pad_normalized.zip"
 }
 
 resource "digitalocean_droplet" "server" {
@@ -98,7 +98,7 @@ resource "digitalocean_droplet" "server" {
       "./pelias compose up api libpostal",
 
       # Import pad, this would take a while
-      "./pelias import nycpad",
+      "./pelias import csv",
       "./pelias compose up nginx"
     ]
 
@@ -115,13 +115,13 @@ resource "digitalocean_droplet" "server" {
   }
 
   # Add droplet to loadbalancer
-  provisioner "local-exec" {
-    command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
-    environment = {
-      loadbalancer_id = var.loadbalancer
-      droplet_id      = self.id
-    }
-  }
+  # provisioner "local-exec" {
+  #   command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
+  #   environment = {
+  #     loadbalancer_id = var.loadbalancer
+  #     droplet_id      = self.id
+  #   }
+  # }
 }
 
 output "ipv4_address" {
