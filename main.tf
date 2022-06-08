@@ -115,13 +115,13 @@ resource "digitalocean_droplet" "server" {
   }
 
   # Add droplet to loadbalancer
-  # provisioner "local-exec" {
-  #   command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
-  #   environment = {
-  #     loadbalancer_id = var.loadbalancer
-  #     droplet_id      = self.id
-  #   }
-  # }
+  provisioner "local-exec" {
+    command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
+    environment = {
+      loadbalancer_id = var.loadbalancer
+      droplet_id      = self.id
+    }
+  }
 }
 
 output "ipv4_address" {
