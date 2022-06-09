@@ -43,10 +43,11 @@ resource "digitalocean_droplet" "server" {
       "chmod 700 /home/pelias/.ssh",
       "chmod 600 /home/pelias/.ssh/authorized_keys",
 
-      # Install unzip and the data folders for nycpad and elasticsearch
+      # Install unzip and create data folders for nycpad, whosonfirst, and elasticsearch
       "apt install -y unzip",
       "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/elasticsearch'",
-      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/nycpad'"
+      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/nycpad'",
+      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/whosonfirst'"
     ]
 
     connection {
@@ -87,6 +88,7 @@ resource "digitalocean_droplet" "server" {
       "echo '${var.password}' | sudo -S -n chown 1100 -R data",
       "echo '${var.password}' | sudo -S -n chown 1100 -R data/elasticsearch",
       "echo '${var.password}' | sudo -S -n chown 1100 -R data/nycpad",
+      "echo '${var.password}' | sudo -S -n chown 1100 -R data/whosonfirst",
 
       # Pull images
       "./pelias compose pull",
