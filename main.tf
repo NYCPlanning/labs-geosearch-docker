@@ -97,8 +97,8 @@ resource "digitalocean_droplet" "server" {
       "./pelias elastic create",
       "./pelias elastic indices",
 
-      # Bringing up libpostal, and api...
-      "./pelias compose up api libpostal",
+      # Bringing up libpostal, pip, and api...
+      "./pelias compose up api libpostal ",
 
       # Import pad, this would take a while
       "./pelias import nycpad",
