@@ -88,6 +88,9 @@ resource "digitalocean_droplet" "server" {
       "echo '${var.password}' | sudo -S -n chown 1100 -R data/elasticsearch",
       "echo '${var.password}' | sudo -S -n chown 1100 -R data/nycpad",
 
+      # Pull images
+      "./pelias compose pull",
+
       # Bring up elasticsearch ...
       "./pelias compose up elasticsearch",
       "./pelias elastic wait",
@@ -98,7 +101,7 @@ resource "digitalocean_droplet" "server" {
       "./pelias compose up api libpostal",
 
       # Import pad, this would take a while
-      "./pelias import csv",
+      "./pelias import nycpad",
       "./pelias compose up nginx"
     ]
 

@@ -48,6 +48,14 @@ services:
     restart: always
     ports: [ "4400:4400" ]
 
+  nycpad:
+    image: pelias/csv-importer:v2.13.0
+    container_name: pelias_csv_importer
+    user: "${DOCKER_USER}"
+    volumes:
+      - "./pelias.json:/code/pelias.json"
+      - "${DATA_DIR}:/data"
+
   # custom NYC PAD importer
   # nycpad:
   #   image: pelias/csv-importer:v2.13.0

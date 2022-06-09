@@ -14,6 +14,9 @@
         "url": "http://libpostal:4400"
       }
     },
+    "targets": {
+      "auto_discover": true
+    },
     "host": "api",
     "indexName": "pelias"
   },
