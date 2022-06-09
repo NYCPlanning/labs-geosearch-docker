@@ -14,6 +14,7 @@ jobs:
       DOCKER_USER: 1100
       DO_PAT: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN}}
       PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+      PASSWORD: ${{secrets.PASSWORD}}
     steps:
     - uses: actions/checkout@v2
     
