@@ -22,8 +22,19 @@
     "indexName": "pelias"
   },
   "imports": {
+    "adminLookup": {
+      "enabled": true
+    },
     "csv": {
       "datapath": "/data/nycpad"
+    },
+    "whosonfirst": {
+      "datapath": "/data/whosonfirst",
+      "importPostalcodes": false,
+      "countryCode": "US",
+      "importPlace": [
+        "85977539"
+      ]
     }
   }
 }

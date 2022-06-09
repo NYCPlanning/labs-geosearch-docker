@@ -98,9 +98,10 @@ resource "digitalocean_droplet" "server" {
       "./pelias elastic indices",
 
       # Bringing up libpostal, pip, and api...
-      "./pelias compose up api pip libpostal",
+      "./pelias compose up api whosonfirst pip libpostal",
 
-      # Import pad, this would take a while
+      # Import whosonfirst and pad, this would take a while
+      "./pelias import whosonfirst",
       "./pelias import nycpad",
       "./pelias compose up nginx"
     ]
@@ -118,13 +119,13 @@ resource "digitalocean_droplet" "server" {
   }
 
   # Add droplet to loadbalancer
-  provisioner "local-exec" {
-    command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
-    environment = {
-      loadbalancer_id = var.loadbalancer
-      droplet_id      = self.id
-    }
-  }
+  # provisioner "local-exec" {
+  #   command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
+  #   environment = {
+  #     loadbalancer_id = var.loadbalancer
+  #     droplet_id      = self.id
+  #   }
+  # }
 }
 
 output "ipv4_address" {

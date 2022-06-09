@@ -72,6 +72,14 @@ services:
   #   volumes:
   #     - "${DATA_DIR}:/usr/local/src/scripts/data"
 
+  whosonfirst:
+    image: pelias/whosonfirst:master
+    container_name: pelias_whosonfirst
+    user: "${DOCKER_USER}"
+    volumes:
+      - "./pelias.json:/code/pelias.json"
+      - "${DATA_DIR}:/data"
+
   pip:
     image: pelias/pip-service:v2.2.0
     container_name: pelias_pip-service
