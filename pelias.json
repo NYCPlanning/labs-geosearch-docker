@@ -12,7 +12,8 @@
     "services": {
       "libpostal": {
         "url": "http://libpostal:4400"
-      }
+      },
+      "pip": { "url": "http://pip:4200" }
     },
     "targets": {
       "auto_discover": true
