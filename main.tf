@@ -21,7 +21,7 @@ resource "digitalocean_droplet" "server" {
     user        = "root"
     type        = "ssh"
     private_key = file(var.pvt_key)
-    timeout     = "45m"
+    timeout     = "60m"
   }
 
   # set up server with sudo user pelias
@@ -54,7 +54,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "root"
       private_key = file(var.pvt_key)
-      timeout     = "45m"
+      timeout     = "60m"
     }
   }
 
@@ -67,7 +67,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "pelias"
       private_key = file(var.pvt_key)
-      timeout     = "45m"
+      timeout     = "60m"
     }
   }
 
@@ -83,8 +83,11 @@ resource "digitalocean_droplet" "server" {
       "chmod +x ./pelias",
 
       # Pulling normalized pad from digitalocean spaces
+      "echo 'Downloading file at ${local.normalized_pad_url}...'",
       "curl -o data/nycpad/labs-geosearch-pad-normalized.zip ${local.normalized_pad_url}",
+      "echo 'Unzipping file...'",
       "(cd data/nycpad; unzip labs-geosearch-pad-normalized.zip)",
+      "echo 'Finished unzipping",
 
       # Set up the correct permission for elasticsearch
       "echo '${var.password}' | sudo -S -n chown 1100 -R data",
@@ -114,7 +117,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "pelias"
       private_key = file(var.pvt_key)
-      timeout     = "45m"
+      timeout     = "60m"
     }
   }
 
