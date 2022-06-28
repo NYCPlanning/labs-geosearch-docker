@@ -87,7 +87,7 @@ resource "digitalocean_droplet" "server" {
       "curl -o data/nycpad/labs-geosearch-pad-normalized.zip ${local.normalized_pad_url}",
       "echo 'Unzipping file...'",
       "(cd data/nycpad; unzip labs-geosearch-pad-normalized.zip)",
-      "echo 'Finished unzipping",
+      "echo 'Finished unzipping'",
 
       # Set up the correct permission for elasticsearch
       "echo '${var.password}' | sudo -S -n chown 1100 -R data",
