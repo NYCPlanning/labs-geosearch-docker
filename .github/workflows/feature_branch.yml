@@ -1,5 +1,9 @@
 name: 'Deploy - Terraform - Feature Branch'
-on: workflow_dispatch
+on: 
+  push:
+    branches-ignore:
+      - main
+  workflow_dispatch:
 jobs:
   terraform:
     runs-on: ubuntu-20.04
