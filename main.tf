@@ -22,7 +22,7 @@ resource "digitalocean_droplet" "server" {
     user        = "root"
     type        = "ssh"
     private_key = file(var.pvt_key)
-    timeout     = "60m"
+    timeout     = "120m"
   }
 
   # set up server with sudo user pelias
@@ -56,7 +56,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "root"
       private_key = file(var.pvt_key)
-      timeout     = "60m"
+      timeout     = "120m"
     }
   }
 
@@ -69,7 +69,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "pelias"
       private_key = file(var.pvt_key)
-      timeout     = "60m"
+      timeout     = "120m"
     }
   }
 
@@ -119,7 +119,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "pelias"
       private_key = file(var.pvt_key)
-      timeout     = "60m"
+      timeout     = "120m"
     }
   }
 
