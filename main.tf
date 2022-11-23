@@ -14,7 +14,8 @@ resource "digitalocean_droplet" "server" {
   ]
   private_networking = true
   ssh_keys = [
-    data.digitalocean_ssh_key.terraform.id
+    data.digitalocean_ssh_key.terraform.id,
+    data.digitalocean_ssh_key.geosearch.id
   ]
   connection {
     host        = self.ipv4_address
@@ -38,6 +39,7 @@ resource "digitalocean_droplet" "server" {
       "mkdir -p /home/pelias/.ssh",
       "touch /home/pelias/.ssh/authorized_keys",
       "echo '${data.digitalocean_ssh_key.terraform.public_key}' > authorized_keys",
+      "echo '${data.digitalocean_ssh_key.geosearch.public_key}' > authorized_keys",
       "mv authorized_keys /home/pelias/.ssh",
       "chown -R pelias:pelias /home/pelias/.ssh",
       "chmod 700 /home/pelias/.ssh",
