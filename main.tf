@@ -1,6 +1,6 @@
 locals {
   droplet_name = "geosearch-${var.pad_version}-${formatdate("YYYY-MM-DD-hh'h'mm", timestamp())}"
-  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/new_pad_normalized_full.zip"
+  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/${var.pad_version}/labs-geosearch-pad-normalized.zip"
 }
 
 resource "digitalocean_droplet" "server" {
@@ -128,14 +128,6 @@ resource "digitalocean_droplet" "server" {
     command = "doctl auth init -t ${var.do_token}"
   }
 
-  # Add droplet to loadbalancer
-  # provisioner "local-exec" {
-  #   command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
-  #   environment = {
-  #     loadbalancer_id = var.loadbalancer
-  #     droplet_id      = self.id
-  #   }
-  # }
 }
 
 output "ipv4_address" {
