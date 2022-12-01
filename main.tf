@@ -1,6 +1,6 @@
 locals {
   droplet_name = "geosearch-${var.pad_version}-${formatdate("YYYY-MM-DD-hh'h'mm", timestamp())}"
-  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/${var.pad_version}/labs-geosearch-pad-normalized.zip"
+  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/new_pad_normalized_full.zip"
 }
 
 resource "digitalocean_droplet" "server" {
@@ -15,14 +15,13 @@ resource "digitalocean_droplet" "server" {
   private_networking = true
   ssh_keys = [
     data.digitalocean_ssh_key.terraform.id
-    # data.digitalocean_ssh_key.geosearch.id
   ]
   connection {
     host        = self.ipv4_address
     user        = "root"
     type        = "ssh"
     private_key = file(var.pvt_key)
-    timeout     = "120m"
+    timeout     = "60m"
   }
 
   # set up server with sudo user pelias
@@ -39,7 +38,6 @@ resource "digitalocean_droplet" "server" {
       "mkdir -p /home/pelias/.ssh",
       "touch /home/pelias/.ssh/authorized_keys",
       "echo '${data.digitalocean_ssh_key.terraform.public_key}' > authorized_keys",
-      # "echo '${data.digitalocean_ssh_key.geosearch.public_key}' > authorized_keys",
       "mv authorized_keys /home/pelias/.ssh",
       "chown -R pelias:pelias /home/pelias/.ssh",
       "chmod 700 /home/pelias/.ssh",
@@ -56,7 +54,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "root"
       private_key = file(var.pvt_key)
-      timeout     = "120m"
+      timeout     = "60m"
     }
   }
 
@@ -69,7 +67,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "pelias"
       private_key = file(var.pvt_key)
-      timeout     = "120m"
+      timeout     = "60m"
     }
   }
 
@@ -104,7 +102,10 @@ resource "digitalocean_droplet" "server" {
       "./pelias compose up elasticsearch",
       "./pelias elastic wait",
       "./pelias elastic create",
-      # "./pelias elastic indices",
+
+      # Download whosonfirst and pad csv
+      "./pelias download wof",
+      "./pelias download csv",
 
       # Bringing up libpostal, pip, and api...
       "./pelias compose up api libpostal",
@@ -119,7 +120,7 @@ resource "digitalocean_droplet" "server" {
       type        = "ssh"
       user        = "pelias"
       private_key = file(var.pvt_key)
-      timeout     = "120m"
+      timeout     = "60m"
     }
   }
 
@@ -128,6 +129,14 @@ resource "digitalocean_droplet" "server" {
     command = "doctl auth init -t ${var.do_token}"
   }
 
+  # Add droplet to loadbalancer
+  # provisioner "local-exec" {
+  #   command = "doctl compute load-balancer add-droplets $loadbalancer_id --droplet-ids $droplet_id"
+  #   environment = {
+  #     loadbalancer_id = var.loadbalancer
+  #     droplet_id      = self.id
+  #   }
+  # }
 }
 
 output "ipv4_address" {
