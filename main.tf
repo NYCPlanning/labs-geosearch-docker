@@ -1,6 +1,6 @@
 locals {
   droplet_name = "geosearch-${var.pad_version}-${formatdate("YYYY-MM-DD-hh'h'mm", timestamp())}"
-  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/new_pad_normalized_full.zip"
+  normalized_pad_url = "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/${var.pad_version}/labs-geosearch-pad-normalized.zip"
 }
 
 resource "digitalocean_droplet" "server" {
