@@ -47,10 +47,10 @@ resource "digitalocean_droplet" "server" {
 
       # Install unzip and create data folders for nycpad, whosonfirst, and elasticsearch
       # "apt install -y unzip",
-      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data'",
-      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/elasticsearch'",
-      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/csv'",
-      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/whosonfirst'"
+      # "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data'",
+      # "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/elasticsearch'",
+      # "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/csv'",
+      # "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/whosonfirst'"
     ]
 
     connection {
@@ -79,6 +79,11 @@ resource "digitalocean_droplet" "server" {
     inline = [
       # create elasticsearch data mount dir with correct permissions
       "cd /home/pelias/geosearch",
+      "mkdir data",
+      "cd data",
+      "mkdir elasticsearch",
+      "mkdir csv",
+      "mkdir whosonfirst",
       "export DATA_DIR=$(pwd)/data",
       "export DOCKER_USER=1100",
 
@@ -93,10 +98,10 @@ resource "digitalocean_droplet" "server" {
       # "echo 'Finished unzipping'",
 
       # Set up the correct permission for elasticsearch
-      "echo '${var.password}' | sudo -S -n chown 1100 -R data",
-      "echo '${var.password}' | sudo -S -n chown 1100 -R data/elasticsearch",
-      "echo '${var.password}' | sudo -S -n chown 1100 -R data/csv",
-      "echo '${var.password}' | sudo -S -n chown 1100 -R data/whosonfirst",
+      # "echo '${var.password}' | sudo -S -n chown 1100 -R data",
+      # "echo '${var.password}' | sudo -S -n chown 1100 -R data/elasticsearch",
+      # "echo '${var.password}' | sudo -S -n chown 1100 -R data/csv",
+      # "echo '${var.password}' | sudo -S -n chown 1100 -R data/whosonfirst",
 
       # Pull images
       "./pelias compose pull",
