@@ -85,11 +85,11 @@ resource "digitalocean_droplet" "server" {
       "chmod +x ./pelias",
 
       # Pulling normalized pad from digitalocean spaces
-      "echo 'Downloading file at ${local.normalized_pad_url}...'",
-      "curl -o data/nycpad/labs-geosearch-pad-normalized.zip ${local.normalized_pad_url}",
-      "echo 'Unzipping file...'",
-      "(cd data/nycpad; unzip labs-geosearch-pad-normalized.zip)",
-      "echo 'Finished unzipping'",
+      # "echo 'Downloading file at ${local.normalized_pad_url}...'",
+      # "curl -o data/nycpad/labs-geosearch-pad-normalized.zip ${local.normalized_pad_url}",
+      # "echo 'Unzipping file...'",
+      # "(cd data/nycpad; unzip labs-geosearch-pad-normalized.zip)",
+      # "echo 'Finished unzipping'",
 
       # Set up the correct permission for elasticsearch
       "echo '${var.password}' | sudo -S -n chown 1100 -R data",
@@ -109,14 +109,11 @@ resource "digitalocean_droplet" "server" {
       "./pelias elastic wait",
       "./pelias elastic create",
 
-      # Bringing up libpostal and api
-      "./pelias compose up api whosonfirst pip libpostal",
-
       # Import csv
       "./pelias import csv",
 
-      # Bring up nginx
-      "./pelias compose up nginx"
+      # Bringing up libpostal and api
+      "./pelias compose up api libpostal nginx"
     ]
 
     connection {
