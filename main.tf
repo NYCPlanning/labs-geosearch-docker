@@ -47,6 +47,7 @@ resource "digitalocean_droplet" "server" {
 
       # Install unzip and create data folders for nycpad, whosonfirst, and elasticsearch
       # "apt install -y unzip",
+      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data'",
       "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/elasticsearch'",
       "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/csv'",
       "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/whosonfirst'"
