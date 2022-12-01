@@ -12,8 +12,7 @@
     "services": {
       "libpostal": {
         "url": "http://libpostal:4400"
-      },
-      "pip": { "url": "http://pip:4200" }
+      }
     },
     "targets": {
       "auto_discover": true
@@ -26,7 +25,10 @@
       "enabled": true
     },
     "csv": {
-      "datapath": "/data/nycpad"
+      "datapath": "/data/csv",
+      "download": [
+        "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/labs-geosearch-pad-normalized_22c.csv"
+      ]
     },
     "whosonfirst": {
       "datapath": "/data/whosonfirst",

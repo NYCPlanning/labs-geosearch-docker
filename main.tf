@@ -46,9 +46,9 @@ resource "digitalocean_droplet" "server" {
       "chmod 600 /home/pelias/.ssh/authorized_keys",
 
       # Install unzip and create data folders for nycpad, whosonfirst, and elasticsearch
-      "apt install -y unzip",
+      # "apt install -y unzip",
       "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/elasticsearch'",
-      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/nycpad'",
+      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/csv'",
       "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/whosonfirst'"
     ]
 
@@ -94,24 +94,28 @@ resource "digitalocean_droplet" "server" {
       # Set up the correct permission for elasticsearch
       "echo '${var.password}' | sudo -S -n chown 1100 -R data",
       "echo '${var.password}' | sudo -S -n chown 1100 -R data/elasticsearch",
-      "echo '${var.password}' | sudo -S -n chown 1100 -R data/nycpad",
+      "echo '${var.password}' | sudo -S -n chown 1100 -R data/csv",
       "echo '${var.password}' | sudo -S -n chown 1100 -R data/whosonfirst",
 
       # Pull images
       "./pelias compose pull",
 
+      # Download WoF and CSV data
+      "./pelias download wof",
+      "./pelias download csv",
+
       # Bring up elasticsearch ...
       "./pelias compose up elasticsearch",
       "./pelias elastic wait",
       "./pelias elastic create",
-      "./pelias elastic indices",
 
-      # Bringing up libpostal, pip, and api...
+      # Bringing up libpostal and api
       "./pelias compose up api whosonfirst pip libpostal",
 
-      # Import whosonfirst and pad, this would take a while
-      "./pelias import whosonfirst",
-      "./pelias import nycpad",
+      # Import csv
+      "./pelias import csv",
+
+      # Bring up nginx
       "./pelias compose up nginx"
     ]
 
