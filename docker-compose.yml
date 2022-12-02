@@ -48,7 +48,7 @@ services:
     restart: always
     ports: [ "4400:4400" ]
 
-  nycpad:
+  csv-importer:
     image: pelias/csv-importer:v2.13.0
     container_name: pelias_csv_importer
     user: "${DOCKER_USER}"
@@ -80,16 +80,16 @@ services:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
 
-  pip:
-    image: pelias/pip-service:v2.2.0
-    container_name: pelias_pip-service
-    user: "${DOCKER_USER}"
-    restart: always
-    environment: ["PORT=4200"]
-    ports: ["4200:4200"]
-    volumes:
-      - "./pelias.json:/code/pelias.json"
-      - "${DATA_DIR}:/data"
+  # pip:
+  #   image: pelias/pip-service:v2.2.0
+  #   container_name: pelias_pip-service
+  #   user: "${DOCKER_USER}"
+  #   restart: always
+  #   environment: ["PORT=4200"]
+  #   ports: ["4200:4200"]
+  #   volumes:
+  #     - "./pelias.json:/code/pelias.json"
+  #     - "${DATA_DIR}:/data"
 
   # The ES backend
   elasticsearch:
@@ -99,7 +99,7 @@ services:
     restart: always
     ports: [ "9200:9200", "9300:9300" ]
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m -Dlog4j2.formatMsgNoLookups=true"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     volumes:
       - "${DATA_DIR}/elasticsearch:/usr/share/elasticsearch/data"
     ulimits:

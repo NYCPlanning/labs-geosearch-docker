@@ -12,8 +12,7 @@
     "services": {
       "libpostal": {
         "url": "http://libpostal:4400"
-      },
-      "pip": { "url": "http://pip:4200" }
+      }
     },
     "targets": {
       "auto_discover": true
@@ -26,7 +25,8 @@
       "enabled": true
     },
     "csv": {
-      "datapath": "/data/nycpad"
+      "datapath": "/data/csv",
+      "files": ["labs-geosearch-pad-normalized.csv"]
     },
     "whosonfirst": {
       "datapath": "/data/whosonfirst",

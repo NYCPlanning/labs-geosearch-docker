@@ -46,7 +46,7 @@ resource "digitalocean_droplet" "server" {
       # Install unzip and create data folders for nycpad, whosonfirst, and elasticsearch
       "apt install -y unzip",
       "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/elasticsearch'",
-      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/nycpad'",
+      "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/csv'",
       "runuser -l pelias -c 'mkdir -p /home/pelias/geosearch/data/whosonfirst'"
     ]
 
@@ -84,19 +84,19 @@ resource "digitalocean_droplet" "server" {
 
       # Pulling normalized pad from digitalocean spaces
       "echo 'Downloading file at ${local.normalized_pad_url}...'",
-      "curl -o data/nycpad/labs-geosearch-pad-normalized.zip ${local.normalized_pad_url}",
+      "curl -o data/csv/labs-geosearch-pad-normalized.zip ${local.normalized_pad_url}",
       "echo 'Unzipping file...'",
-      "(cd data/nycpad; unzip labs-geosearch-pad-normalized.zip)",
+      "(cd data/csv; unzip labs-geosearch-pad-normalized.zip)",
       "echo 'Finished unzipping'",
 
       # Set up the correct permission for elasticsearch
       "echo '${var.password}' | sudo -S -n chown 1100 -R data",
       "echo '${var.password}' | sudo -S -n chown 1100 -R data/elasticsearch",
-      "echo '${var.password}' | sudo -S -n chown 1100 -R data/nycpad",
+      "echo '${var.password}' | sudo -S -n chown 1100 -R data/csv",
       "echo '${var.password}' | sudo -S -n chown 1100 -R data/whosonfirst",
 
       # Pull images
-      "./pelias compose pull",
+      # "./pelias compose pull",
 
       # Bring up elasticsearch ...
       "./pelias compose up elasticsearch",
@@ -105,11 +105,11 @@ resource "digitalocean_droplet" "server" {
       "./pelias elastic indices",
 
       # Bringing up libpostal, pip, and api...
-      "./pelias compose up api whosonfirst pip libpostal",
+      "./pelias compose up api libpostal",
 
       # Import whosonfirst and pad, this would take a while
-      "./pelias import whosonfirst",
-      "./pelias import nycpad",
+      # "./pelias import whosonfirst",
+      "./pelias import csv",
       "./pelias compose up nginx"
     ]
 
