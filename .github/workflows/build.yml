@@ -28,4 +28,12 @@ jobs:
     runs-on: ubuntu-20.04
     needs: create-droplet
     steps:
-      - run: echo the ip is ${{needs.create-droplet.outputs.IPV4}}
+      - name: multiple command
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{needs.create-droplet.outputs.IPV4}}
+          username: pelias
+          key: ${{ secrets.GEOSEARCH_PVT_KEY }}
+          script: |
+            whoami
+            ls -al
