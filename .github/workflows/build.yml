@@ -5,6 +5,7 @@ on:
       - main
 jobs:
   create-droplet:
+    name: Create droplet
     runs-on: ubuntu-20.04
     outputs:
       IPV4: ${{ steps.save.outputs.IPV4 }}
@@ -23,8 +24,18 @@ jobs:
     - id: save
       name: Save IPv4
       run: echo "::set-output name=IPV4::$(doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}")"
-  print-ip:
+  setup:
     runs-on: ubuntu-20.04
+    name: Setup droplet
     needs: create-droplet
     steps:
-      - run: echo the ip is ${{needs.create-droplet.outputs.IPV4}}
+      - name: test commands
+        needs: create-droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{needs.create-droplet.outputs.IPV4}}
+          username: root
+          key: ${{ secrets.GEOSEARCH_PVT_KEY }}
+          script: |
+            whoami
+            ls -al
