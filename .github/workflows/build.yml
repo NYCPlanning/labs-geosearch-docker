@@ -22,7 +22,7 @@ jobs:
       run: doctl compute droplet create --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --wait geosearch-test-01
     - id: save
       name: Save IPv4
-      run: echo "::set-output name=IPV4=IPV4::$(doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}")"
+      run: echo "::set-output name=IPV4::$(doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}")"
   print-ip:
     runs-on: ubuntu-20.04
     needs: create-droplet
