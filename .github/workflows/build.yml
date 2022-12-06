@@ -1,0 +1,32 @@
+name: 'Build and Deploy'
+on: 
+  push:
+    branches-ignore:
+      - main
+jobs:
+  create-droplet:
+    runs-on: ubuntu-20.04
+    outputs:
+      ipv4: ${{ steps.save.outputs.ipv4 }}
+    env:
+      SSH_FINGERPRINT: ${{ secrets.SSH_FINGERPRINT}
+    steps:
+    - uses: actions/checkout@v2
+    - id: install
+      name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    - id: create
+      name: Create droplet
+      run: doctl compute droplet create --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --wait geosearch-test-01
+    - id: save
+      name: Save IPv4
+      run: |
+        IPV4=`doctl compute droplet get geosearch-test-01 --template "{{.PublicIPv4}}"`
+        echo "ipv4=$IPV4" >> $GITHUB_OUPUT
+  print-ip:
+    runs-on: ubuntu-20.04
+    needs: create-droplet
+    steps:
+      - run: echo the ip is ${{needs.create-droplet.outputs.ipv4}}
