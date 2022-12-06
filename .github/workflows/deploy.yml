@@ -1,8 +1,6 @@
 name: 'Deploy - Terraform'
 on: 
-  push:
-    paths-ignore:
-      - "*.md"
+  workflow_dispatch:
 jobs:
   terraform:
     runs-on: ubuntu-20.04
