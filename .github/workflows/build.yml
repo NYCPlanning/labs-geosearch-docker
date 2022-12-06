@@ -7,7 +7,7 @@ jobs:
   create-droplet:
     runs-on: ubuntu-20.04
     outputs:
-      ipv4: ${{ steps.save.outputs.ipv4 }}
+      IPV4: ${{ steps.save.outputs.IPV4 }}
     env:
       SSH_FINGERPRINT: ${{ secrets.SSH_FINGERPRINT }}
     steps:
@@ -22,12 +22,9 @@ jobs:
       run: doctl compute droplet create --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --wait geosearch-test-01
     - id: save
       name: Save IPv4
-      run: |
-        IPV4=`doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}"`
-        echo -n "ipv4=$IPV4" >> "$GITHUB_OUPUT"
-        echo "Saved output IPv4: $IPV4"
+      run: echo "IPV4=$(doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}")" >> $GITHUB_OUPUT
   print-ip:
     runs-on: ubuntu-20.04
     needs: create-droplet
     steps:
-      - run: echo the ip is ${{needs.create-droplet.outputs.ipv4}}
+      - run: echo the ip is ${{needs.create-droplet.outputs.IPV4}}
