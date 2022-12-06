@@ -30,7 +30,6 @@ jobs:
     needs: create-droplet
     steps:
       - name: test commands
-        needs: create-droplet
         uses: appleboy/ssh-action@master
         with:
           host: ${{needs.create-droplet.outputs.IPV4}}
