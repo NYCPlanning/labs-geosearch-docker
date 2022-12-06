@@ -1,0 +1,18 @@
+#cloud-config
+users:
+  - name: pelias
+    ssh-authorized-keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCwHcIqMPtGJJT8xtjnuMBf4K/XGifjUb9yv/Dn2GzB5W7BBiOduHV87mg0Up6PoEC0+naOB++Elt5a+ufiIP+Lc5H7mN/X9MX68MJgIR9kRBTxuwP7FKzohHHJesbzpyZEMHuI6nTeC0NO1donF/L2oelU1O3Vqbr7vjPLY8QYu5Ra9Dcryinjwx1b3kk3jysZ3IqEkJ7ye364d2CtougoHtH+j4Xi+FhPVdbJvzLowBGGuohVcwsfm+lU122zRHwgeM+W2OR/QUsch1TDbA3GnwNOQSz8TSl+mYoEBcF00GenkskrE11Jyvq0e01lfgzBseL7kal6THcgq/YjNDRt3hpyvwCrF22jgcw7hlHyz4Dnwe4u6ua8u4maoYdm1f01MAU2UnEssO63tJ401RE8VzvOS2zHgC2a3MR2uPbxpVOvusalJJuuShxqrfB04XYX7QPpzcDSfOatc7LFgT75Ipr/qNLFda/UAEuXMNFT8gbis+m+tSaTE+eAyh14PzM= tylermatteo@Tylers-MacBook-Pro.local
+    groups: sudo, docker
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+package-update: true
+package-upgrade: true
+packages:
+  - nginx
+  - docker
+  - docker-compose
+runcmd:
+  - 'mkdir geosearch && cd geosearch'
+  - 'git clone https://github.com/NYCPlanning/labs-geosearch-docker.git .'
+  - 'git checkout replace-terraform'

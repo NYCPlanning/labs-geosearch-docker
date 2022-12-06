@@ -20,21 +20,12 @@ jobs:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
     - id: create
       name: Create droplet
-      run: doctl compute droplet create --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --wait geosearch-test-01
+      run: doctl compute droplet create --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait geosearch-test-01
     - id: save
       name: Save IPv4
       run: echo "::set-output name=IPV4::$(doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}")"
-  setup:
+  print-ip:
     runs-on: ubuntu-20.04
-    name: Setup droplet
     needs: create-droplet
     steps:
-      - name: test commands
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{needs.create-droplet.outputs.IPV4}}
-          username: root
-          key: ${{ secrets.GEOSEARCH_PVT_KEY }}
-          script: |
-            whoami
-            ls -al
+      - run: echo the ip is ${{needs.create-droplet.outputs.IPV4}}
