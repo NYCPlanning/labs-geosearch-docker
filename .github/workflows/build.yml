@@ -16,7 +16,7 @@ jobs:
       name: Install doctl
       uses: digitalocean/action-doctl@v2
       with:
-        token: ${{ secrets.DO_PAT }}
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
     - id: create
       name: Create droplet
       run: doctl compute droplet create --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --wait geosearch-test-01
