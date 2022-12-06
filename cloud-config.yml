@@ -13,6 +13,7 @@ packages:
   - docker
   - docker-compose
 runcmd:
+  - 'su -l pelias'
   - 'cd ~'
   - 'mkdir geosearch && cd geosearch'
   - 'git clone https://github.com/NYCPlanning/labs-geosearch-docker.git .'
