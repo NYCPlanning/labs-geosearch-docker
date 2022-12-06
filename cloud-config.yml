@@ -13,6 +13,9 @@ packages:
   - docker
   - docker-compose
 runcmd:
+  - 'cd ~'
   - 'mkdir geosearch && cd geosearch'
   - 'git clone https://github.com/NYCPlanning/labs-geosearch-docker.git .'
   - 'git checkout replace-terraform'
+  - 'mkdir -p data/elasticsearch data/csv data/whosonfirst'
+  - 'echo "DATA_DIR=$(pwd)/data" >> .env'
