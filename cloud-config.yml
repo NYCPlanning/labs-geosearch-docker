@@ -12,3 +12,20 @@ packages:
   - nginx
   - docker
   - docker-compose
+runcmd:
+  - 'runuser -l pelias -c "mkdir /home/pelias/geosearch"'
+  - 'cd /home/pelias/geosearch'
+  - 'runuser -l pelias -c "git clone https://github.com/NYCPlanning/labs-geosearch-docker.git ."'
+  - 'runuser -l pelias -c "git checkout replace-terraform"'
+  - 'runuser -l pelias -c "mkdir -p data/elasticsearch data/csv data/whosonfirst"'
+  - 'runuser -l pelias -c "echo "DATA_DIR=$(pwd)/data" >> .env"'
+  - 'runuser -l pelias -c "./pelias compose pull"'
+  - 'runuser -l pelias -c "./pelias elastic start"'
+  - 'runuser -l pelias -c "./pelias elastic wait"'
+  - 'runuser -l pelias -c "./pelias elastic create"'
+  - 'runuser -l pelias -c "./pelias download wof"'
+  - 'runuser -l pelias -c "./pelias download csv"'
+  - 'runuser -l pelias -c "./pelias import csv"'
+  - 'runuser -l pelias -c "./pelias download csv"'
+  - 'runuser -l pelias -c "./pelias compose up"'
+

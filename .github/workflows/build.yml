@@ -24,16 +24,3 @@ jobs:
     - id: save
       name: Save IPv4
       run: echo "::set-output name=IPV4::$(doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}")"
-  print-ip:
-    runs-on: ubuntu-20.04
-    needs: create-droplet
-    steps:
-      - name: multiple command
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{needs.create-droplet.outputs.IPV4}}
-          username: pelias
-          key: ${{ secrets.GEOSEARCH_PVT_KEY }}
-          script: |
-            whoami
-            ls -al
