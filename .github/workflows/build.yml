@@ -9,7 +9,7 @@ jobs:
     outputs:
       ipv4: ${{ steps.save.outputs.ipv4 }}
     env:
-      SSH_FINGERPRINT: ${{ secrets.SSH_FINGERPRINT}
+      SSH_FINGERPRINT: ${{ secrets.SSH_FINGERPRINT }}
     steps:
     - uses: actions/checkout@v2
     - id: install
