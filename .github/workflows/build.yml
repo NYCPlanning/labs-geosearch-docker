@@ -24,7 +24,7 @@ jobs:
       name: Save IPv4
       run: |
         IPV4=`doctl compute droplet get geosearch-test-01 --template "{{.PublicIPv4}}"`
-        echo "ipv4=$IPV4" >> $GITHUB_OUPUT
+        echo -n "ipv4=$IPV4" >> $GITHUB_OUPUT
         echo "Saved output IPv4: $IPV4"
   print-ip:
     runs-on: ubuntu-20.04
