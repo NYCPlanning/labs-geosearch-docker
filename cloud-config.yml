@@ -16,7 +16,7 @@ runcmd:
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && git clone https://github.com/NYCPlanning/labs-geosearch-docker.git ."'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && git checkout replace-terraform"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && mkdir -p data/elasticsearch data/csv data/whosonfirst"'
-  - 'runuser -l pelias -c "cd /home/pelias/geosearch && echo "DATA_DIR=$(pwd)/data" > .env"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && echo "DATA_DIR=/home/pelias/geosearch/data" > .env"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias compose pull"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias elastic start"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias elastic wait"'
