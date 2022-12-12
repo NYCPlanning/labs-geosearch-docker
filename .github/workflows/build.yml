@@ -23,7 +23,7 @@ jobs:
       run: doctl compute droplet create --enable-monitoring --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait "geosearch-${GITHUB_RUN_ID}"
     - id: save
       name: Save IPv4
-      run: echo "::set-output name=IPV4::$(doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}")"
+      run: echo "::set-output name=IPV4::$(doctl compute droplet get "geosearch-${GITHUB_RUN_ID}" --template "{{- .PublicIPv4 -}}")"
   healthcheck:
     name: Wait for healthcheck to pass
     runs-on: ubuntu-20.04
