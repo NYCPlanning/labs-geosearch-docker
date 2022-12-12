@@ -33,5 +33,5 @@ jobs:
         with:
           url: 'http://${{needs.create-droplet.outputs.IPV4}}/v2/autocomplete?text=120%20broadway'
           responseCode: 200
-          timeout: 3600000
+          timeout: 5400000
           interval: 30000
