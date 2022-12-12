@@ -1,8 +1,8 @@
 name: 'Build and Deploy'
 on: 
   push:
-    branches-ignore:
-      - main
+    paths-ignore:
+      - "*.md"
 jobs:
   create-droplet:
     name: Create droplet
