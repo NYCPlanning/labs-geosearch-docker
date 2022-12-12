@@ -28,7 +28,7 @@
     "csv": {
       "datapath": "/data/csv",
       "download": [
-        "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/22c/labs-geosearch-pad-normalized.zip"
+        "https://planninglabs.nyc3.digitaloceanspaces.com/geosearch-data/22c/labs-geosearch-pad-normalized.csv"
       ]
     },
     "whosonfirst": {
