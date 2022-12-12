@@ -31,7 +31,7 @@ services:
       - "./pelias.json:/code/pelias.json"
 
   libpostal:
-    image: pelias/libpostal-service:master
+    image: pelias/libpostal-service:latest
     container_name: pelias_libpostal
     user: "${DOCKER_USER}"
     restart: always
@@ -46,7 +46,7 @@ services:
       - "${DATA_DIR}:/data"
 
   whosonfirst:
-    image: pelias/whosonfirst:master
+    image: pelias/whosonfirst:v5.5.1
     container_name: pelias_whosonfirst
     user: "${DOCKER_USER}"
     volumes:
@@ -64,7 +64,6 @@ services:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
 
-  # The ES backend
   elasticsearch:
     image: pelias/elasticsearch:7.16.1
     container_name: pelias_elasticsearch

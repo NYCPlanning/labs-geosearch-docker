@@ -20,7 +20,18 @@ jobs:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
     - id: create
       name: Create droplet
-      run: doctl compute droplet create --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait geosearch-test-01
+      run: doctl compute droplet create --enable-monitoring --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait "geosearch-${GITHUB_RUN_ID}"
     - id: save
       name: Save IPv4
       run: echo "::set-output name=IPV4::$(doctl compute droplet get geosearch-test-01 --template "{{- .PublicIPv4 -}}")"
+  healthcheck:
+    name: Wait for healthcheck to pass
+    runs-on: ubuntu-20.04
+    needs: create-droplet
+    steps:
+      - uses: nev7n/wait_for_response@v1
+        with:
+          url: 'http://${{needs.create-droplet.outputs.IPV4}}/v2/autocomplete?text=120%20broadway'
+          responseCode: 200
+          timeout: 3600000
+          interval: 30000

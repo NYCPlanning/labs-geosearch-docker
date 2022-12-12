@@ -6,6 +6,7 @@ users:
     groups: sudo, docker
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
+disable_root: true
 package-update: true
 package-upgrade: true
 packages:
@@ -25,4 +26,3 @@ runcmd:
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias download csv"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias import csv"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias compose up"'
-
