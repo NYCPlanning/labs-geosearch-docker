@@ -1,4 +1,4 @@
-Docker Compose project for NYC Geosearch Services,built on the open source [Pelias](https://github.com/pelias/pelias) geocoder and [NYC's Property Address Directory (PAD)](https://www1.nyc.gov/site/planning/data-maps/open-data.page)
+Docker Compose project for NYC Geosearch service, built on the open source [Pelias](https://github.com/pelias/pelias) geocoder and [NYC's Property Address Directory (PAD)](https://www1.nyc.gov/site/planning/data-maps/open-data.page)
 
 ## Overview
 
@@ -38,71 +38,13 @@ Much of this environment is config-driven, and the two files you should pay atte
 
 ## Pelias CLI tool
 
-All of the necessary steps/functionality have been wrapped in this `pelias` CLI tool. To set up the tool, add [`pelias` file](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/pelias) in this repo to your path, or create a symlink to the executable in an existing path location:
-
-To add the location of the pelias executable to your PATH, run this from the root dir of this repo:
-
-```sh
-echo export PATH=$PATH:`pwd`/pelias >> ~/.bash_profile
-source ~/.bash_profile
-```
-
-To add a symlink to the pelias executable to an existing PATH location (maybe `/usr/loca/bin`, `/usr/bin`, etc...), run this from the root dir of this repo:
-
-```sh
-ln -s `pwd`/pelias /usr/local/bin # or wherever you'd like to install the executable in your PATH
-```
-
-Once you have set up pelias, you can see all possible commands by running `pelias`:
-
-```sh
-$ pelias
-
-Usage: pelias [command] [action] [options]
-
-  compose    pull                   update all docker images
-  compose    logs                   display container logs
-  compose    ps                     list containers
-  compose    top                    display the running processes of a container
-  compose    exec                   execute an arbitrary docker-compose command
-  compose    run                    execute a docker-compose run command
-  compose    up                     start one or more docker-compose service(s)
-  compose    kill                   kill one or more docker-compose service(s)
-  compose    down                   stop all docker-compose service(s)
-  download   placeholder            (re)download placeholder data
-  elastic    drop                   delete elasticsearch index & all data
-  elastic    create                 create elasticsearch index with pelias mapping
-  elastic    alias                  Create or update specified alias to point to index defined in pelias.json
-  elastic    start                  start elasticsearch server
-  elastic    stop                   stop elasticsearch server
-  elastic    status                 HTTP status code of the elasticsearch service
-  elastic    wait                   wait for elasticsearch to start up
-  elastic    aliases                show all elasticsearch aliases
-  elastic    indices                show all elasticsearch indices
-  import     nycpad                 (re)import NYC PAD data
-  normalize  nycpad                 (re)download nycpad data, normalize, and save; version can optionally be specified
-  terraform  plan               this is a dry run without actually creating a server in digitalocean
-  terraform  apply              actually applying terraform configurations
-  terraform  destroy            destroy the server/service that was just created as a clean up step
-  terraform  ssh                ssh into the newly created digitalocean droplet
-```
-
-This is essentially a subset of commands/actions provided by the original tool, with a few operations added to manage PAD data
-
+All steps needed to get an instance of Geosearch up and running are encapsulated within commands that can be run via the `pelias` CLI tool included in this repo. This CLI tool is comprised of the file `pelias` at the root of this repo, as well as the files found in `/lib` and `/cmd`. All of these files were taken directly from [Pelias' official repo](https://github.com/pelias/docker) outlining how to run Pelias via docker and docker-compose. **Note that these files are up to date with that Pelias repo as of December 2022, but changes to that repo will not be automatically reflected in this repo.**. If you would like to set up the CLI locally, see the docs in the /pelias/docker repo. 
 ## Running Pelias Services
 
 1. __Install CLI tool__
 
     See above
 
-2. __Run PAD Download and Normalization__
-
-    You can specify a PAD version to download by passing it to the pelias CLI command
-    > Note: in a deployment, we will pull normalized pad file directly from **DigitalOcean Spaces**
-
-    ```sh
-    pelias normalize nycpad [PAD_VERSION]
-    ```
 
 3. __Bring up Elasticsearch and Create Index__
 
@@ -197,13 +139,6 @@ This is essentially a subset of commands/actions provided by the original tool, 
     ]
     ```
 
-## Schema Customization through Mounting
-
-Mounted files can be seen in the [`mounts` directory](https://github.com/NYCPlanning/labs-geosearch-docker/tree/master/mounts). In order to ensure these mounts continue to work, we have pinned specific pelias image tags in the docker compose file. These should not be updated without confirming the mount files here are compatible with the source code in the new image tag.
-
-- The `schema` directory contains [`document.js`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/schema/document.js), which adds `pad_meta` fields to the document schema registered with ES. This file is mounted into the `pelias/schema` container. This allows for us to maintain the `dynamic: 'strict'` settings also upheld by pelias, while storing our custom fields in a sane, reasonable way.
-
-- The `api` directory contains [`helper/geojsonify_place_details.js`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/api/helper/geojsonify_place_details.js#L61-L65) and [`middleware/renamePlacenames.js`](https://github.com/NYCPlanning/labs-geosearch-docker/blob/master/mounts/api/middleware/renamePlacenames.js#L60-L65), which together ensure the `pad_meta` fields are flattened into the top-level JSON object ultimately returned by the API. These files are mounted into the `pelias/api` container. This allows us to return our custom object without any additional processing or calls to ES backend.
 
 ## Production Domain
 
@@ -213,12 +148,18 @@ This nginx config also proxies all requests that aren't API calls to the geosear
 
 ## Deployment 🚀
 
+> The following section is only relevant to members of DCP's Open Source Engineering team responsible for maintaining Geosearch
+
 When a new quarterly update of PAD available on Bytes of the Big Apples:
 
 1. Head to [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) to trigger a PAD Normalization process. Which will produce the latest version of normalized pad and deploy to DigitalOcean Spaces.
 
-2. Once we confirm that the PAD Normalization process is complete. Change the PAD version under `versoin.env` to reflect the latest version of PAD made available (e.g.`VERSION=21a`), and create a pull request.
+2. Confirm that the csv outputed by geosearch-pad-normalize has been uploaded to the "latest" folder in Digital Ocean. You can see the exact URL that this repo will attempt to download the data from by looking at the value in `imports.csv.download` in `pelias.json`. **Note that you should not have to make changes to `pelias.json` in order to do data updates.**
 
 > Based on the pull request, terraform will generate an execution plan and post the plan in the pull request comment section.
 
-3. Review the execution plan and merge into master, a fresh deployment of geosearch will be automatically kicked off using github actions.
+3. Run the "Build and Deploy" GH Action workflow. This workflow will run automatically on pushes to `main`. However, if you are only trying to deploy a new instance of Geosearch with a new version of PAD, you should not need to make any code changes to this repo. Because of that, the workflow can also be run manually. To do that, go to the "Actions" tab in the repo and select the "Build and Deploy" worklow from the list on the left-hand side. Then select "Run workflow" with the `main` branch selected. 
+
+4. The workflow will create the new Droplet in Digital Ocean and run the commands in `cloud-config.yml`. This will initialize all of the containers in `docker-compose.yml`, download the PAD data, and import it into Pelias' ElasticSearch database. Finally, the workflow will run `wait_for_200.sh` every 30 seconds for up to 1 hour so that the workflow will end with a successful status if and when your new Geosearch instance is up and ready to start receiving traffic.
+
+5. Once the workflow finishes successfully, you should see a new geosearch droplet in Digital Ocean. You can verify that it is working properly by sending requests at it's public IPv4 address. Traffic to the production geosearch URL (https://geosearch.planninglabs.nyc/) is sent to the IP associated with the "geosearch" load balancer. To put your new droplet in production, simply add it to the new load balancer, remove the old droplet from the load balancer, and then delete the old droplet.
