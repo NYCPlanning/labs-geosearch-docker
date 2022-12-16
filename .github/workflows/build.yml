@@ -31,5 +31,6 @@ jobs:
     env: 
       IPV4: ${{needs.create-droplet.outputs.IPV4}}
     steps:
+    - uses: actions/checkout@v2
     - id: healthcheck
       run: ./wait_for_200.sh "$IPV4"
