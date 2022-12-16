@@ -5,7 +5,7 @@ on:
       - "*.md"
 jobs:
   create-droplet:
-    name: Create droplet
+    name: Create and provision droplet
     runs-on: ubuntu-20.04
     outputs:
       IPV4: ${{ steps.save.outputs.IPV4 }}
@@ -28,10 +28,8 @@ jobs:
     name: Wait for healthcheck to pass
     runs-on: ubuntu-20.04
     needs: create-droplet
+    env: 
+      IPV4: ${{needs.create-droplet.outputs.IPV4}}
     steps:
-      - uses: nev7n/wait_for_response@v1
-        with:
-          url: 'http://${{needs.create-droplet.outputs.IPV4}}/v2/autocomplete?text=120%20broadway'
-          responseCode: 200
-          timeout: 5400000
-          interval: 30000
+    - id: healthcheck
+      run: ./wait_for_200.sh "$IPV4"
