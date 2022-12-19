@@ -12,7 +12,7 @@ function health_status(){
 }
 
 function health_wait(){
-  echo 'waiting for healthcheck to return 200';
+  echo 'waiting for healthcheck to $1 to return 200';
   retry_count=120
 
   i=1
