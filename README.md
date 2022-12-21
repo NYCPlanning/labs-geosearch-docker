@@ -5,28 +5,21 @@ Docker Compose project for NYC Geosearch service, built on the open source [Peli
 - [About](#about)
 - [Config-Driven](#config-driven)
 - [Pelias CLI tool](pelias-cli-tool)
-- [Running Pelias Services](#running-pelias-services)
-- [Schema Customization through Mounting](#schema-customization-through-mounting)
-- [Production Domain](#production-domain)
-- [Deployment 🚀](#deployment-)
+- [Running Geosearch Locally](#running-geosearch-locally)
+- [Deployment](#deployment)
+- [How exactly to deployments work?](#how-exactly-to-deployments-work?)
 
 ## About
 
-These dockerfiles allow for quickly standing up all of the services that work together to run the pelias geocoder, and is used in both production and development. These include:
-
-- Modified Pelias API - node.js HTTP API that parses search strings and returns results from ES backend, using our custom Document schema
-- [Libpostal service](https://github.com/pelias/libpostal-service) - a supporting service for Pelias API that parses addresses with ML-trained models
-- Elasticsearch - the backend for the geocoder, where all address data is stored
-
 This repo serves as "home base" for the GeoSearch project, as the docker compose project orchestrates a functioning set up.  Other relevant code for our Pelias deployment:
 
-- [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) - an R script that ingests and transforms raw Property Address Database (PAD) data, most significantly interpolating valid address ranges.
-- [geosearch-pad-importer](https://github.com/NYCPlanning/labs-geosearch-pad-importer) - a Pelias importer for normalized NYC PAD data.
+- [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) - an R script that ingests and transforms raw Property Address Database (PAD) data, most significantly interpolating valid address ranges. This repo ouputs a csv that conforms to the data schema required by Pelias' official [CSV Importer](https://github.com/pelias/csv-importer). Note that this repo used to output data meant to be ingested by the now deprecated [PAD Importer](https://github.com/NYCPlanning/labs-geosearch-pad-importer) project.
 - [geosearch-docs](https://github.com/NYCPlanning/labs-geosearch-docs) - an interactive documentation site for the Geosearch API
-- [geosearch-acceptance-tests](https://github.com/NYCPlanning/labs-geosearch-acceptance-tests) - nyc-specific test suite for geosearch
 
-Docker Compose allows us to quickly spin up the pelias services we need, and run scripts manually in the containers.  It also makes use of volumes and internal hostnames so the various services can communicate with each other.
-We are leveraging a CLI tool `pelias` introduced in the recent [pelias/docker](https://github.com/pelias/docker) project. Here it had been trimmed down and modified to address the specific use-cases of our project
+Docker Compose allows us to quickly spin up the pelias services we need, and run scripts manually in the containers.  It also makes use of volumes and internal hostnames so the various services can communicate with each other. The contents of `docker-compose.yml` are based on code from the [pelias/docker](https://github.com/pelias/docker) project.
+
+> There is one service in `docker-compose.yml` that did not come from the `pelias/docker` project and that is the one called `nginx`. We added a simple [nginx](https://nginx.org/en/) server here that uses the contents of `nginx.conf` to serve as a reverse proxy server to direct traffic to either the Geosearch docs [website](https://github.com/NYCPlanning/labs-geosearch-docs) or forward it to the Pelias API itself.
+
 For more information on Pelias services, including many which we are not using here at City Planning, check out the `pelias/docker` project, or their [documentation](https://github.com/pelias/documentation)
 
 ## Config-Driven
@@ -38,128 +31,98 @@ Much of this environment is config-driven, and the two files you should pay atte
 
 ## Pelias CLI tool
 
-All steps needed to get an instance of Geosearch up and running are encapsulated within commands that can be run via the `pelias` CLI tool included in this repo. This CLI tool is comprised of the file `pelias` at the root of this repo, as well as the files found in `/lib` and `/cmd`. All of these files were taken directly from [Pelias' official repo](https://github.com/pelias/docker) outlining how to run Pelias via docker and docker-compose. **Note that these files are up to date with that Pelias repo as of December 2022, but changes to that repo will not be automatically reflected in this repo.**. If you would like to set up the CLI locally, see the docs in the /pelias/docker repo. 
-## Running Pelias Services
+All steps needed to get an instance of Geosearch up and running are encapsulated within commands that can be run via the `pelias` CLI tool included in this repo. This CLI tool is comprised of the file `pelias` at the root of this repo, as well as the files found in `/lib` and `/cmd`. All of these files were taken directly from [this Pelias repo](https://github.com/pelias/docker) outlining how to run Pelias via docker and docker-compose. **Note that these files are up to date with that Pelias repo as of December 2022, but changes to that repo will not be automatically reflected in this repo.**. If you would like to set up the CLI locally, see the docs in the /pelias/docker repo.
 
-1. __Install CLI tool__
+> If you are having trouble setting up the CLI, or would just prefer not to add a record to your `$PATH`, you should be able to call the file at `./pelias` directly. To do this when running the commands in the "Running Geosearch Locally" section below, just replace `pelias` with `./pelias` in the commands. For instance `pelias compose pull` becomes `./pelias compose pull`
 
-    See above
+## Running Geosearch Locally
 
+You can run Geosearch locally using the included `pelias` CLI and docker-compose.yml file. The following instructions assume that you have set up the Pelias CLI locally and have docker and docker-compose installed on your machine.
 
-3. __Bring up Elasticsearch and Create Index__
+Run these commands from the root directory of this repo:
 
-    Index name can be specified in pelias.json, as `schema.indexName`
+First, create the requisite folder for the docker volumes. Note that the `./data` folder and its contents will be gitignored
+```
+mkdir -p data/elasticsearch data/csv data/whosonfirst
+```
 
-    ```sh
-    $ pelias compose up elasticsearch
+Create a `.env` file and set the `DATA_DIR` environment variables for Pelias
+```
+echo "DATA_DIR=$(pwd)/data" > .env
+```
 
-    Creating pelias_elasticsearch ... done
+Pull images
+```
+pelias compose pull
+```
 
-    $ pelias elastic create
-    --------------
-    create index
-    --------------
+Start the ElasticSearch service
+```
+pelias elastic start
+```
 
-    [put mapping]    pelias { acknowledged: true,
-      shards_acknowledged: true,
-      index: 'pelias' }
+Wait for it to come up. **This may take longer than the timeout period built into the pelias CLI. If you get a message saying elasticsearch did not come up, try running this command a few times to see if you get the "Elasticsearch up!" message eventually**
+```
+pelias elastic wait
+```
 
-    $ pelias elastic indices # to confirm index was correctly created, get all indices
-    health status index  uuid                   pri rep docs.count docs.deleted store.size pri.store.size
-    green  open   pelias aTRPQXrZQMm4Dboo3AI8gg   5   0          0            0       810b           810b
-    ```
+Create the index in EL
+```
+pelias elastic create
+```
 
-    Note: As with the download step, if elasticsearch and schema images have not yet been pulled, they will be pulled and built as part of these steps
+Download the required Who's On First dataset
+```
+pelias download wof
+```
 
-4. __Import PAD Data__
+Download the normalized PAD CSV
+```
+pelias download csv
+```
 
-    This step runs the PAD importer to load downloaded PAD data into the running ES database. For more information, see the [Pad Importer](https://github.com/NYCPlanning/labs-geosearch-pad-importer)
+Import the normalized PAD data into the elasticsearch datastore. This will likely take a while.
+```
+pelias import csv
+```
 
-    ```sh
-    $ pelias import nycpad
-    2019-02-14T16:45:27.109Z - info: [nycpad] Creating read stream for: /data/nycpad/labs-geosearch-pad-normalized.csv
-    2019-02-14T16:45:27.939Z - info: [dbclient]  paused=true, transient=10, current_length=0
-    2019-02-14T16:45:27.940Z - info: [dbclient]  paused=true, transient=10, current_length=0
-    2019-02-14T16:45:37.908Z - info: [dbclient]  paused=true, transient=8, current_length=0, indexed=2314, batch_ok=2314, batch_retries=0,
-    failed_records=0, address=2314, persec=231.4
-    2019-02-14T16:45:47.909Z - info: [dbclient]  paused=true, transient=7, current_length=0, indexed=5779, batch_ok=5779, batch_retries=0,
-    failed_records=0, address=5779, persec=346.5
-    2019-02-14T16:45:57.909Z - info: [dbclient]  paused=true, transient=10, current_length=0, indexed=8344, batch_ok=8344, batch_retries=0,
-     failed_records=0, address=8344, persec=256.5
-    2019-02-14T16:46:07.875Z - info: [dbclient]  paused=true, transient=5, current_length=0, indexed=11901, batch_ok=11901, batch_retries=0
-    , failed_records=0, address=11901, persec=355.7
-    ...
-    ```
+Bring up the rest of the necessary docker services, including the Pelias API and nginx server
+```
+pelias compose up
+```
 
-    Note: Importing the entire PAD dataset will take a fair amount of time and space. If you are bootstrapping/developing, it is recommended to download and import a smaller sample of the dataset #TODO ADD LINK TO importer repo
+To confirm that everything is up and running, you can try to hit the API. For instance, a `GET` call to `http://localhost/v2/autocomplete?text=120%20broadway` should return results for 120 Broadway.
 
-5. __Bring UP API and Supporting Services__
-
-    The importer and schema containers are ephemeral, meaning that they will exit(0) immediately upon being run. This means you're free to bring up the whole docker compose project, and only the containers that should persist (pelias API, and placeholder and libpostal services) will persist. Alternatively you can specify which containers you'd like to bring up
-
-    ```sh
-    $ pelias compose up api libpostal
-
-    OR
-
-    $ pelias compose up
-    ```
-
-    Note: The libpostal service requires significant memory to function, around 2G for just this one service. Be sure to bump up your docker memory allocation before trying to run all the services at once.
-
-6. __Confirm everything is working!__
-
-    ```sh
-    $ docker-compose ps
-            Name                      Command               State                       Ports
-    --------------------------------------------------------------------------------------------------------------
-    pelias_api             ./bin/start                      Up      0.0.0.0:4000->4000/tcp
-    pelias_elasticsearch   /bin/bash bin/es-docker          Up      0.0.0.0:9200->9200/tcp, 0.0.0.0:9300->9300/tcp
-    pelias_libpostal       ./bin/wof-libpostal-server ...   Up      0.0.0.0:4400->4400/tcp
-
-    # confirm libpostal is running & working
-    $ curl -s localhost:4400/expand?address=120%20Broadway%20NY%20NY | jq
-    [
-      "120 broadway ny ny",
-      "120 broadway ny new york",
-      "120 broadway new york ny",
-      "120 broadway new york new york"
-    ]
-
-    # confirm pelias API is running & working
-    $ curl -s localhost:4000/status
-    status: ok
-
-    $ curl -s localhost:4000/v1/autocomplete?text=1415%20ave%20w | jq 'keys' # only showing top level keys here for brevity
-    [
-      "bbox",
-      "features",
-      "geocoding",
-      "type"
-    ]
-    ```
-
-
-## Production Domain
-
-In production, we added a custom nginx configuration to handle SSL, and route traffic to the pelias api running internally on port 4000.  The nginx config [Jinja2](http://jinja.pocoo.org/) template is saved in this repo as [`nginx.conf`](nginx.conf).
-
-This nginx config also proxies all requests that aren't API calls to the geosearch docs site, so that both the API and the docs can share the same production domain.
-
-## Deployment 🚀
+## Deployment
 
 > The following section is only relevant to members of DCP's Open Source Engineering team responsible for maintaining Geosearch
 
 When a new quarterly update of PAD available on Bytes of the Big Apples:
 
-1. Head to [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) to trigger a PAD Normalization process. Which will produce the latest version of normalized pad and deploy to DigitalOcean Spaces.
+1. Head to [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) and perform the process outlined there for building a new version of the normalized PAD data. This will produce the latest version of normalized pad and deploy the new CSV file to the correct DigitalOcean Space.
 
 2. Confirm that the csv outputed by geosearch-pad-normalize has been uploaded to the "latest" folder in Digital Ocean. You can see the exact URL that this repo will attempt to download the data from by looking at the value in `imports.csv.download` in `pelias.json`. **Note that you should not have to make changes to `pelias.json` in order to do data updates.**
-
-> Based on the pull request, terraform will generate an execution plan and post the plan in the pull request comment section.
 
 3. Run the "Build and Deploy" GH Action workflow. This workflow will run automatically on pushes to `main`. However, if you are only trying to deploy a new instance of Geosearch with a new version of PAD, you should not need to make any code changes to this repo. Because of that, the workflow can also be run manually. To do that, go to the "Actions" tab in the repo and select the "Build and Deploy" worklow from the list on the left-hand side. Then select "Run workflow" with the `main` branch selected. 
 
 4. The workflow will create the new Droplet in Digital Ocean and run the commands in `cloud-config.yml`. This will initialize all of the containers in `docker-compose.yml`, download the PAD data, and import it into Pelias' ElasticSearch database. Finally, the workflow will run `wait_for_200.sh` every 30 seconds for up to 1 hour so that the workflow will end with a successful status if and when your new Geosearch instance is up and ready to start receiving traffic.
 
+> As of December 2022, it typically takes about 30-45 minutes for the the droplet to be created and for the services to fully reach a "healthy" status with all of the data loaded in. In some cases, it is possible that the GH Action job that runs `wait_for_200.sh` will finish "successfully" even though there was a failure. If that job finishes successfully much more quickly than we would expect, manually test the `/v2/autocomplete` endpoint to make sure the normalized PAD data was properly loaded before going to production.
+
 5. Once the workflow finishes successfully, you should see a new geosearch droplet in Digital Ocean. You can verify that it is working properly by sending requests at it's public IPv4 address. Traffic to the production geosearch URL (https://geosearch.planninglabs.nyc/) is sent to the IP associated with the "geosearch" load balancer. To put your new droplet in production, simply add it to the new load balancer, remove the old droplet from the load balancer, and then delete the old droplet.
+
+## How exactly to deployments work?
+
+> The following explains what happens when we deploy a new Droplet running the code in this repo to Digital Ocean. If you are only trying to deploy a new instance of Geosearch with a new version of PAD data, everything you need should be covered in the "Deployment" section above.
+
+Deployments are primarily handled by two files: `/.github/workflows/build.yml' and 'cloud-config.yml`. The "Build and Deploy" workflow in `build.yml` is run manually or triggered by pushes to the `main` branch (note that merging PRs into main constitutes a push). This workflow is responsible for a few things:
+1. It uses `doctl` to create a new droplet. It will add an SSH public key saved in DO to that Droplet and tag it with `labs`. It will also point DO to the `cloud-config.yml` file for cloud-init to use for provisioning the droplet
+2. Once the droplet is up, it will use the script in `wait_for_200.sh` to wait for the droplet to be healthy. In this scenario, healthy is defined as having all Geosearch services up and ready to accept traffic. This can take a while, primarily due to the time it takes to download the normalized PAD CSV and import it into the ElasticSearch datastore.
+
+Spinning up the services defined in `docker-compose.yml` and downloading and importing data is done via the tool [cloud-init](https://cloudinit.readthedocs.io/en/latest/). cloud-init uses the contents of `cloud-config.yml` to do the following:
+1. Create a new sudo user called `pelias` on the new droplet. This is necessary because, following best practice, the Pelias CLI tool cannot not be run as the `root` system user. It will assign this user to the correct groups and add the included public SSH key to it.
+2. Disable root access. As a security measure, logging into the droplet as `root` will be disabled once it is initialized.
+3. Install the `docker` and `docker-compose` packages.
+4. Bring up Geosearch by running the commands under `runcmd`. Note that even though `cloud-config.yml` creates the pelias user, the commands in `runcmd` are executed **as root**. Most of these commands use `runuser` to execute commands as the pelias user.
+
+> If you find yourself needing to ssh into a deployed Geosearch droplet, please see your team lead for additional instructions.
