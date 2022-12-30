@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'main'
+  workflow_dispatch:
 jobs:
   create-droplet:
     name: Create and provision droplet

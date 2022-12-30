@@ -6,8 +6,8 @@ Docker Compose project for NYC Geosearch service, built on the open source [Peli
 - [Config-Driven](#config-driven)
 - [Pelias CLI tool](pelias-cli-tool)
 - [Running Geosearch Locally](#running-geosearch-locally)
-- [Deployment](#deployment)
-- [How exactly to deployments work?](#how-exactly-to-deployments-work?)
+- [Deployment](#redeploying-geosearch-for-quarterly-data-updates)
+- [How exactly to deployments work?](#how-exactly-to-deployments-work)
 
 ## About
 
@@ -93,13 +93,13 @@ pelias compose up
 
 To confirm that everything is up and running, you can try to hit the API. For instance, a `GET` call to `http://localhost/v2/autocomplete?text=120%20broadway` should return results for 120 Broadway.
 
-## Deployment
+## Redeploying Geosearch for Quarterly Data Updates
 
 > The following section is only relevant to members of DCP's Open Source Engineering team responsible for maintaining Geosearch
 
-When a new quarterly update of PAD available on Bytes of the Big Apples:
+When a new quarterly update of PAD becomes available on Bytes of the Big Apples:
 
-1. Head to [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) and perform the process outlined there for building a new version of the normalized PAD data. This will produce the latest version of normalized pad and deploy the new CSV file to the correct DigitalOcean Space.
+1. Head to [geosearch-pad-normalize](https://github.com/NYCPlanning/labs-geosearch-pad-normalize) and perform the process outlined there for building a new version of the normalized PAD data. Once you have merged a pull request in the `main` branch of that repo, you can monitor the progress of building and uploading the new data in the [actions for that repo](https://github.com/NYCPlanning/labs-geosearch-pad-normalize/actions). This will produce the latest version of normalized pad and upload the new CSV file to the correct DigitalOcean Space.
 
 2. Confirm that the csv outputed by geosearch-pad-normalize has been uploaded to the "latest" folder in Digital Ocean. You can see the exact URL that this repo will attempt to download the data from by looking at the value in `imports.csv.download` in `pelias.json`. **Note that you should not have to make changes to `pelias.json` in order to do data updates.**
 
