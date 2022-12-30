@@ -13,9 +13,8 @@ services:
       - "443:443"
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     
-  # image tag from 2019-02-14 pinned to ensure mount compatibility. Confirm before updating
   api:
-    image: pelias/api:master-2019-02-14-e2fd040514ec657824c06b582e9a7afad0765c34
+    image: pelias/api:v5.53.0
     container_name: pelias_api
     user: "${DOCKER_USER}"
     restart: always
@@ -23,57 +22,56 @@ services:
     ports: [ "4000:4000" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
-      # mount custom middleware/helper code to expose PAD meta fields in api response
-      - "./mounts/api/helper/geojsonify_place_details.js:/home/pelias/helper/geojsonify_place_details.js"
-      - "./mounts/api/middleware/renamePlacenames.js:/home/pelias/middleware/renamePlacenames.js"
 
-  # defines the ES schema used by pelias API
-  # image tag from 2019-02-15 pinned to ensure mount compatibility. Confirm before updating
   schema:
-    image: pelias/schema:master-2019-02-15-62a9ba10bf35811ea6e742b5eb5830d0b1be3e92
+    image: pelias/schema:v6.4.0
     container_name: pelias_schema
     user: "${DOCKER_USER}"
     volumes:
       - "./pelias.json:/code/pelias.json"
-      # mount custom document schema to add PAD meta fields to native document schema in ES
-      - "./mounts/schema/mappings/document.js:/code/pelias/schema/mappings/document.js"
-      - "./mounts/schema/bin/alias:/code/pelias/schema/bin/alias"
-      - "./mounts/schema/scripts/alias.js:/code/pelias/schema/scripts/alias.js"
 
-  # Required by pelias api; see https://github.com/pelias/documentation/blob/master/services.md
   libpostal:
-    image: pelias/libpostal-service
+    image: pelias/libpostal-service:latest
     container_name: pelias_libpostal
     user: "${DOCKER_USER}"
     restart: always
     ports: [ "4400:4400" ]
 
-  # custom NYC PAD importer
-  nycpad:
-    build:
-      context: "https://github.com/nycplanning/labs-geosearch-pad-importer.git"
-    container_name: pelias_nycpad_importer
+  csv-importer:
+    image: pelias/csv-importer:v2.13.0
+    container_name: pelias_csv_importer
+    user: "${DOCKER_USER}"
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
 
-  # NYC PAD normalizer
-  nycpad_normalizer:
-    build:
-      context: "http://github.com/nycplanning/labs-geosearch-pad-normalize.git#main"
-    container_name: pelias_nycpad_normalizer
+  whosonfirst:
+    image: pelias/whosonfirst:v5.5.1
+    container_name: pelias_whosonfirst
+    user: "${DOCKER_USER}"
     volumes:
-      - "${DATA_DIR}:/usr/local/src/scripts/data"
+      - "./pelias.json:/code/pelias.json"
+      - "${DATA_DIR}:/data"
 
-  # The ES backend
+  pip:
+    image: pelias/pip-service:v2.2.0
+    container_name: pelias_pip-service
+    user: "${DOCKER_USER}"
+    restart: always
+    environment: ["PORT=4200"]
+    ports: ["4200:4200"]
+    volumes:
+      - "./pelias.json:/code/pelias.json"
+      - "${DATA_DIR}:/data"
+
   elasticsearch:
-    image: pelias/elasticsearch:5.6.12
+    image: pelias/elasticsearch:7.16.1
     container_name: pelias_elasticsearch
     user: "${DOCKER_USER}"
     restart: always
     ports: [ "9200:9200", "9300:9300" ]
     environment:
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m -Dlog4j2.formatMsgNoLookups=true"
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
     volumes:
       - "${DATA_DIR}/elasticsearch:/usr/share/elasticsearch/data"
     ulimits:

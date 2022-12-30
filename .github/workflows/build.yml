@@ -1,0 +1,37 @@
+name: 'Build and Deploy'
+on: 
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+jobs:
+  create-droplet:
+    name: Create and provision droplet
+    runs-on: ubuntu-20.04
+    outputs:
+      IPV4: ${{ steps.save.outputs.IPV4 }}
+    env:
+      SSH_FINGERPRINT: ${{ secrets.SSH_FINGERPRINT }}
+    steps:
+    - uses: actions/checkout@v2
+    - id: install
+      name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    - id: create
+      name: Create droplet
+      run: doctl compute droplet create --enable-monitoring --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait "geosearch-${GITHUB_RUN_ID}"
+    - id: save
+      name: Save IPv4
+      run: echo "::set-output name=IPV4::$(doctl compute droplet get "geosearch-${GITHUB_RUN_ID}" --template "{{- .PublicIPv4 -}}")"
+  healthcheck:
+    name: Wait for healthcheck to pass
+    runs-on: ubuntu-20.04
+    needs: create-droplet
+    env: 
+      IPV4: ${{needs.create-droplet.outputs.IPV4}}
+    steps:
+    - uses: actions/checkout@v2
+    - id: healthcheck
+      run: ./wait_for_200.sh "$IPV4"

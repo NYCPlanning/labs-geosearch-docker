@@ -14,7 +14,7 @@ function register(){
 }
 
 function help(){
-  printf 'Usage: pelias [command] [action] [options]\n\n' ${0}
+  printf 'Usage: %s [command] [action] [options]\n\n' ${0}
 
   for (( i = 0; i < ${#commands[@]}; ++i )); do
     echo -e "  ${commands[$i]}\t${actions[$i]}\t          ${hints[$i]}"

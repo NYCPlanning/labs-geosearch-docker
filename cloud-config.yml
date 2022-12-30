@@ -1,0 +1,27 @@
+#cloud-config
+users:
+  - name: pelias
+    ssh-authorized-keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCwHcIqMPtGJJT8xtjnuMBf4K/XGifjUb9yv/Dn2GzB5W7BBiOduHV87mg0Up6PoEC0+naOB++Elt5a+ufiIP+Lc5H7mN/X9MX68MJgIR9kRBTxuwP7FKzohHHJesbzpyZEMHuI6nTeC0NO1donF/L2oelU1O3Vqbr7vjPLY8QYu5Ra9Dcryinjwx1b3kk3jysZ3IqEkJ7ye364d2CtougoHtH+j4Xi+FhPVdbJvzLowBGGuohVcwsfm+lU122zRHwgeM+W2OR/QUsch1TDbA3GnwNOQSz8TSl+mYoEBcF00GenkskrE11Jyvq0e01lfgzBseL7kal6THcgq/YjNDRt3hpyvwCrF22jgcw7hlHyz4Dnwe4u6ua8u4maoYdm1f01MAU2UnEssO63tJ401RE8VzvOS2zHgC2a3MR2uPbxpVOvusalJJuuShxqrfB04XYX7QPpzcDSfOatc7LFgT75Ipr/qNLFda/UAEuXMNFT8gbis+m+tSaTE+eAyh14PzM=
+    groups: sudo, docker
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+disable_root: true
+package-update: true
+package-upgrade: true
+packages:
+  - docker
+  - docker-compose
+runcmd:
+  - 'runuser -l pelias -c "mkdir /home/pelias/geosearch"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && git clone https://github.com/NYCPlanning/labs-geosearch-docker.git ."'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && mkdir -p data/elasticsearch data/csv data/whosonfirst"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && echo "DATA_DIR=/home/pelias/geosearch/data" > .env"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias compose pull"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias elastic start"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias elastic wait"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias elastic create"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias download wof"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias download csv"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias import csv"'
+  - 'runuser -l pelias -c "cd /home/pelias/geosearch && ./pelias compose up"'
