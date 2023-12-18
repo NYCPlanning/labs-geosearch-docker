@@ -111,7 +111,7 @@ When a new quarterly update of PAD becomes available on Bytes of the Big Apples:
 
 5. Once the workflow finishes successfully, you should see a new geosearch droplet in Digital Ocean. You can verify that it is working properly by sending requests at it's public IPv4 address. Traffic to the production geosearch URL (https://geosearch.planninglabs.nyc/) is sent to the IP associated with the "geosearch" load balancer. To put your new droplet in production, simply add it to the new load balancer, remove the old droplet from the load balancer, and then delete the old droplet.
 
-## How exactly to deployments work?
+## How exactly do deployments work?
 
 > The following explains what happens when we deploy a new Droplet running the code in this repo to Digital Ocean. If you are only trying to deploy a new instance of Geosearch with a new version of PAD data, everything you need should be covered in the "Deployment" section above.
 
