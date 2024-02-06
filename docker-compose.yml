@@ -12,6 +12,8 @@ services:
       - "80:80"
       - "443:443"
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    logging:
+      driver: "local"
     
   api:
     image: pelias/api:v5.53.0
@@ -22,6 +24,8 @@ services:
     ports: [ "4000:4000" ]
     volumes:
       - "./pelias.json:/code/pelias.json"
+    logging:
+      driver: "local"
 
   schema:
     image: pelias/schema:v6.4.0
@@ -36,6 +40,8 @@ services:
     user: "${DOCKER_USER}"
     restart: always
     ports: [ "4400:4400" ]
+    logging:
+      driver: "local"
 
   csv-importer:
     image: pelias/csv-importer:v2.13.0
@@ -63,6 +69,8 @@ services:
     volumes:
       - "./pelias.json:/code/pelias.json"
       - "${DATA_DIR}:/data"
+    logging:
+      driver: "local"
 
   elasticsearch:
     image: pelias/elasticsearch:7.16.1
@@ -82,3 +90,5 @@ services:
         soft: 65536
         hard: 65536
     cap_add: [ "IPC_LOCK" ]
+    logging:
+      driver: "local"
