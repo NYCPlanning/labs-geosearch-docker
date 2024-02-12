@@ -39,5 +39,10 @@
         "85977539"
       ]
     }
+  },
+  "logger": {
+    "level": "http",
+    "timestamp": true,
+    "colorize": true
   }
 }
