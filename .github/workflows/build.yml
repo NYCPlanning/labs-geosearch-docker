@@ -7,7 +7,7 @@ on:
 jobs:
   create-droplet:
     name: Create and provision droplet
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     outputs:
       IPV4: ${{ steps.save.outputs.IPV4 }}
     env:
@@ -21,13 +21,13 @@ jobs:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
     - id: create
       name: Create droplet
-      run: doctl compute droplet create --enable-monitoring --image ubuntu-20-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait "geosearch-${GITHUB_RUN_ID}"
+      run: doctl compute droplet create --enable-monitoring --image ubuntu-24-04-x64 --size s-4vcpu-8gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait "geosearch-${GITHUB_RUN_ID}"
     - id: save
       name: Save IPv4
       run: echo "::set-output name=IPV4::$(doctl compute droplet get "geosearch-${GITHUB_RUN_ID}" --template "{{- .PublicIPv4 -}}")"
   healthcheck:
     name: Wait for healthcheck to pass
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     needs: create-droplet
     env: 
       IPV4: ${{needs.create-droplet.outputs.IPV4}}
