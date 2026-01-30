@@ -4,7 +4,7 @@ networks:
     driver: bridge
 services:
   nginx:
-    image: nginx:1.26.1-alpine3.19-slim
+    image: nginx:1.28.1-alpine3.23-perl
     restart: unless-stopped
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
