@@ -10,8 +10,8 @@ disable_root: true
 package-update: true
 package-upgrade: true
 packages:
-  - docker
-  - docker-compose
+  - docker.io
+  - docker-compose-plugin
 runcmd:
   - 'runuser -l pelias -c "mkdir /home/pelias/geosearch"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && git clone https://github.com/NYCPlanning/labs-geosearch-docker.git ."'
