@@ -21,7 +21,7 @@ jobs:
         token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN_2026_08 }}
     - id: create
       name: Create droplet
-      run: doctl compute droplet create --enable-monitoring --image ubuntu-24-04-x64 --size s-8vcpu-16gb --region nyc3 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait "geosearch-${GITHUB_RUN_ID}"
+      run: doctl compute droplet create --enable-monitoring --image ubuntu-24-04-x64 --size s-8vcpu-16gb --region nyc2 --ssh-keys "${SSH_FINGERPRINT}" --tag-name labs --user-data-file ./cloud-config.yml --wait "geosearch-${GITHUB_RUN_ID}"
     - id: save
       name: Save IPv4
       run: echo "::set-output name=IPV4::$(doctl compute droplet get "geosearch-${GITHUB_RUN_ID}" --template "{{- .PublicIPv4 -}}")"
