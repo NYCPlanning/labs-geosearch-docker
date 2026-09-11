@@ -11,7 +11,7 @@ package-update: true
 package-upgrade: true
 packages:
   - docker
-  - docker-compose-plugin
+  - docker-compose
 runcmd:
   - 'runuser -l pelias -c "mkdir /home/pelias/geosearch"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && git clone -b 87/update-package-syntax-use-docker-package-manager https://github.com/NYCPlanning/labs-geosearch-docker.git ."'
