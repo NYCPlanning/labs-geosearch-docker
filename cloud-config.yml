@@ -10,7 +10,7 @@ disable_root: true
 package-update: true
 package-upgrade: true
 packages:
-  - docker.io
+  - docker
   - docker-compose-plugin
 runcmd:
   - 'runuser -l pelias -c "mkdir /home/pelias/geosearch"'
