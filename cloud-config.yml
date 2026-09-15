@@ -1,4 +1,9 @@
 #cloud-config
+apt:
+  sources:
+    docker.list:
+      source: "deb https://download.docker.com/linux/ubuntu $RELEASE stable"
+      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
 users:
   - name: pelias
     ssh-authorized-keys:
@@ -7,11 +12,13 @@ users:
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
 disable_root: true
-package-update: true
-package-upgrade: true
+package_update: true
+package_upgrade: true
 packages:
-  - docker
-  - docker-compose
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose-plugin
 runcmd:
   - 'runuser -l pelias -c "mkdir /home/pelias/geosearch"'
   - 'runuser -l pelias -c "cd /home/pelias/geosearch && git clone https://github.com/NYCPlanning/labs-geosearch-docker.git ."'

@@ -122,7 +122,7 @@ Deployments are primarily handled by two files: `/.github/workflows/build.yml' a
 Spinning up the services defined in `docker-compose.yml` and downloading and importing data is done via the tool [cloud-init](https://cloudinit.readthedocs.io/en/latest/). cloud-init uses the contents of `cloud-config.yml` to do the following:
 1. Create a new sudo user called `pelias` on the new droplet. This is necessary because, following best practice, the Pelias CLI tool cannot not be run as the `root` system user. It will assign this user to the correct groups and add the included public SSH key to it.
 2. Disable root access. As a security measure, logging into the droplet as `root` will be disabled once it is initialized.
-3. Install the `docker` and `docker-compose` packages.
+3. Install Docker from Docker's official `apt` repository (`docker-ce`, `docker-ce-cli`, `containerd.io`, `docker-compose-plugin`).
 4. Bring up Geosearch by running the commands under `runcmd`. Note that even though `cloud-config.yml` creates the pelias user, the commands in `runcmd` are executed **as root**. Most of these commands use `runuser` to execute commands as the pelias user.
 
 > If you find yourself needing to ssh into a deployed Geosearch droplet, please see your team lead for additional instructions.
