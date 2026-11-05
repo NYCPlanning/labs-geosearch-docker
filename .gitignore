@@ -38,3 +38,6 @@ terraform.rc
 
 .DS_Store
 data/**/*
+
+# IDE settings
+.vscode/
