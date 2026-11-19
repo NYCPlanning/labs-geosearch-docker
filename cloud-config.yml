@@ -1,9 +1,10 @@
 #cloud-config
+bootcmd:
+  - [cloud-init-per, once, docker-gpg-key, sh, -c, "install -m 0755 -d /etc/apt/keyrings && curl -fsSL --retry 5 https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc && chmod a+r /etc/apt/keyrings/docker.asc"]
 apt:
   sources:
     docker.list:
-      source: "deb https://download.docker.com/linux/ubuntu $RELEASE stable"
-      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+      source: "deb [signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $RELEASE stable"
 users:
   - name: pelias
     ssh-authorized-keys:
